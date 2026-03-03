@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      injectable_generator:injectable_builder:
+        generate_for:
+          - lib/features/**/*.dart
+          - lib/core/**/*.dart
+      injectable_generator:injectable_config_builder:
+        generate_for:
+          - lib/features/**/*.dart
+          - lib/core/**/*.dart
