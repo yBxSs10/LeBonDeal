@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1043144726360",
+    "project_id": "lebondeal-baf79",
+    "storage_bucket": "lebondeal-baf79.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043144726360:android:6b0a4821492613a18df72d",
+        "android_client_info": {
+          "package_name": "com.example.lebondeal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1043144726360-o3tnocnq2otkncrm63tr36mvk4ka0jtn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUtK89sLsFk4POrwwRMlI8aP7EF8U-DQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1043144726360-o3tnocnq2otkncrm63tr36mvk4ka0jtn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
