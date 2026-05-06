@@ -1,1 +1,18 @@
-{"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"lebondeal-baf79","configurations":{"web":"1:1043144726360:web:369a191dc25af2608df72d"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "lebondeal-baf79",
+          "configurations": {
+            "web": "1:1043144726360:web:369a191dc25af2608df72d"
+          }
+        }
+      }
+    }
+  }
+}

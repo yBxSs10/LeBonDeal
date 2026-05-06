@@ -8,6 +8,7 @@ class Deal {
   final String imageUrl;
   final String storeName;
   final String author;
+  final String authorId; // UID Firebase — requis par les Security Rules
   final int publishedHoursAgo;
   final String? badge;
   final int comments;
@@ -27,6 +28,7 @@ class Deal {
     required this.imageUrl,
     required this.storeName,
     required this.author,
+    required this.authorId,
     required this.publishedHoursAgo,
     this.badge,
     required this.comments,
@@ -52,6 +54,7 @@ class Deal {
     String? imageUrl,
     String? storeName,
     String? author,
+    String? authorId,
     int? publishedHoursAgo,
     String? badge,
     int? comments,
@@ -71,6 +74,7 @@ class Deal {
       imageUrl: imageUrl ?? this.imageUrl,
       storeName: storeName ?? this.storeName,
       author: author ?? this.author,
+      authorId: authorId ?? this.authorId,
       publishedHoursAgo: publishedHoursAgo ?? this.publishedHoursAgo,
       badge: badge ?? this.badge,
       comments: comments ?? this.comments,

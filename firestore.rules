@@ -1,0 +1,171 @@
+rules_version = '2';
+
+// ============================================================
+// LeBonDeal — Firestore Security Rules
+// RNCP39583 — C2.3.1 : Sécuriser l'application
+//
+// Modèle de rôles :
+//   - Non authentifié  : lecture publique des deals uniquement
+//   - user             : lecture + création deals/commentaires
+//   - moderator        : user + modération (suppression, signalement)
+//   - admin            : accès complet
+//
+// Principe du moindre privilège appliqué sur chaque collection.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------
+    // FONCTIONS UTILITAIRES
+    // ----------------------------------------------------------
+
+    // Vérifie que l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Vérifie que l'utilisateur est le propriétaire de la ressource
+    function isOwner(authorId) {
+      return isAuthenticated() && request.auth.uid == authorId;
+    }
+
+    // Vérifie le rôle depuis le document users/{uid}
+    function hasRole(role) {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isModerator() {
+      return hasRole('moderator') || hasRole('admin');
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // Valide qu'un champ requis est présent et non vide
+    function hasField(data, field) {
+      return field in data && data[field] != null && data[field] != '';
+    }
+
+    // ----------------------------------------------------------
+    // COLLECTION : users
+    // Stocke les profils utilisateurs (id, email, displayName, role)
+    // ----------------------------------------------------------
+    match /users/{userId} {
+      // Lecture : authentifié uniquement (pas de profil public)
+      allow read: if isAuthenticated();
+
+      // Création : uniquement son propre profil, à l'inscription
+      allow create: if isOwner(userId)
+        && hasField(request.resource.data, 'email')
+        && hasField(request.resource.data, 'displayName')
+        && request.resource.data.role == 'user'; // rôle forcé à 'user'
+
+      // Mise à jour : son propre profil, sans pouvoir changer son rôle
+      allow update: if isOwner(userId)
+        && request.resource.data.role == resource.data.role; // rôle immuable
+
+      // Suppression : admin uniquement
+      allow delete: if isAdmin();
+    }
+
+    // ----------------------------------------------------------
+    // COLLECTION : deals
+    // Champs attendus : title, description, price, originalPrice,
+    //   discountPercent, imageUrl, storeName, author, authorId,
+    //   categoryId, createdAt, isTrending, isPopular
+    // ----------------------------------------------------------
+    match /deals/{dealId} {
+      // Lecture : publique (même non connecté)
+      allow read: if true;
+
+      // Création : authentifié + champs obligatoires valides
+      allow create: if isAuthenticated()
+        && hasField(request.resource.data, 'title')
+        && hasField(request.resource.data, 'price')
+        && hasField(request.resource.data, 'authorId')
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.price is number
+        && request.resource.data.price > 0;
+
+      // Mise à jour :
+      //   - auteur : peut modifier son deal (sauf authorId)
+      //   - modérateur : peut modifier isTrending, isPopular, badge
+      allow update: if (isOwner(resource.data.authorId)
+          && request.resource.data.authorId == resource.data.authorId)
+        || isModerator();
+
+      // Suppression : auteur ou modérateur
+      allow delete: if isOwner(resource.data.authorId) || isModerator();
+
+      // ----------------------------------------------------------
+      // SOUS-COLLECTION : votes
+      // Un utilisateur = un seul vote par deal
+      // ----------------------------------------------------------
+      match /votes/{userId} {
+        allow read: if true;
+        allow write: if isAuthenticated() && request.auth.uid == userId;
+      }
+    }
+
+    // ----------------------------------------------------------
+    // COLLECTION : comments
+    // Champs attendus : dealId, author, authorId, content, createdAt
+    // ----------------------------------------------------------
+    match /comments/{commentId} {
+      // Lecture : publique
+      allow read: if true;
+
+      // Création : authentifié + contenu non vide + authorId cohérent
+      allow create: if isAuthenticated()
+        && hasField(request.resource.data, 'content')
+        && hasField(request.resource.data, 'dealId')
+        && hasField(request.resource.data, 'authorId')
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.content.size() <= 500; // limite anti-spam
+
+      // Mise à jour : auteur uniquement (correction de son commentaire)
+      allow update: if isOwner(resource.data.authorId)
+        && request.resource.data.authorId == resource.data.authorId;
+
+      // Suppression : auteur ou modérateur
+      allow delete: if isOwner(resource.data.authorId) || isModerator();
+    }
+
+    // ----------------------------------------------------------
+    // COLLECTION : reports (signalements)
+    // Champs attendus : targetId, targetType, reason, authorId
+    // ----------------------------------------------------------
+    match /reports/{reportId} {
+      // Lecture : modérateur uniquement
+      allow read: if isModerator();
+
+      // Création : tout utilisateur authentifié
+      allow create: if isAuthenticated()
+        && hasField(request.resource.data, 'targetId')
+        && hasField(request.resource.data, 'reason')
+        && request.resource.data.authorId == request.auth.uid;
+
+      // Mise à jour / suppression : modérateur (traitement du signalement)
+      allow update, delete: if isModerator();
+    }
+
+    // ----------------------------------------------------------
+    // COLLECTION : categories
+    // Données en lecture seule pour les utilisateurs
+    // ----------------------------------------------------------
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ----------------------------------------------------------
+    // Blocage par défaut : tout ce qui n'est pas déclaré ci-dessus
+    // ----------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
