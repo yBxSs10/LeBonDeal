@@ -79,6 +79,7 @@ class AddDealBloc extends ChangeNotifier {
       originalPrice: originalPrice,
       discountPercent: discountPercent,
       author: user.displayName ?? 'Utilisateur actuel',
+      authorId: user.uid,
       publishedHoursAgo: 0,
       badge: discountPercent > 50 ? 'HOT' : 'NEW',
       comments: 0,

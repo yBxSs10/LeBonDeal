@@ -33,6 +33,7 @@ class CreateDealUseCase {
       originalPrice: originalPrice ?? price,
       discountPercent: discountPercent,
       author: user.displayName ?? 'Utilisateur actuel',
+      authorId: user.uid,
       publishedHoursAgo: 0,
       badge: discountPercent > 50 ? 'HOT' : 'NEW',
       comments: 0,
