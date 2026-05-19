@@ -11,9 +11,7 @@ class TrendingPage extends StatelessWidget {
     final trendingDeals = DataService.getTrendingDeals();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tendances'),
-      ),
+      appBar: AppBar(title: const Text('Tendances')),
       body: trendingDeals.isEmpty
           ? const EmptyStateWidget(
               message: 'Aucun deal tendance pour le moment',

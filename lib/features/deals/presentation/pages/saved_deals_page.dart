@@ -18,9 +18,7 @@ class _SavedDealsPageState extends State<SavedDealsPage> {
     final savedDeals = DataService.getSavedDeals(_savedDealIds);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Deals sauvegardés'),
-      ),
+      appBar: AppBar(title: const Text('Deals sauvegardés')),
       body: savedDeals.isEmpty
           ? const EmptyStateWidget(
               message: 'Vous n\'avez pas encore sauvegardé de deals',

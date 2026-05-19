@@ -53,7 +53,10 @@ void main() {
       });
 
       // ASSERT — lecture et vérification
-      final snapshot = await fakeFirestore.collection('deals').doc(deal.id).get();
+      final snapshot = await fakeFirestore
+          .collection('deals')
+          .doc(deal.id)
+          .get();
       expect(snapshot.exists, true);
       expect(snapshot.data()?['title'], 'MacBook Pro -30%');
       expect(snapshot.data()?['authorId'], 'uid_test_001');
@@ -62,36 +65,39 @@ void main() {
     // -------------------------------------------------------
     // DEAL-007 : Lecture des deals d'une catégorie
     // -------------------------------------------------------
-    test('DEAL-007 : getDealsByCategory retourne uniquement les deals de la catégorie', () async {
-      // ARRANGE — on insère 3 deals dont 2 high-tech
-      await fakeFirestore.collection('deals').add({
-        'title': 'iPhone',
-        'categoryId': 'high-tech',
-        'authorId': 'uid_001',
-      });
-      await fakeFirestore.collection('deals').add({
-        'title': 'Nike Air',
-        'categoryId': 'mode',
-        'authorId': 'uid_002',
-      });
-      await fakeFirestore.collection('deals').add({
-        'title': 'iPad',
-        'categoryId': 'high-tech',
-        'authorId': 'uid_003',
-      });
+    test(
+      'DEAL-007 : getDealsByCategory retourne uniquement les deals de la catégorie',
+      () async {
+        // ARRANGE — on insère 3 deals dont 2 high-tech
+        await fakeFirestore.collection('deals').add({
+          'title': 'iPhone',
+          'categoryId': 'high-tech',
+          'authorId': 'uid_001',
+        });
+        await fakeFirestore.collection('deals').add({
+          'title': 'Nike Air',
+          'categoryId': 'mode',
+          'authorId': 'uid_002',
+        });
+        await fakeFirestore.collection('deals').add({
+          'title': 'iPad',
+          'categoryId': 'high-tech',
+          'authorId': 'uid_003',
+        });
 
-      // ACT
-      final snapshot = await fakeFirestore
-          .collection('deals')
-          .where('categoryId', isEqualTo: 'high-tech')
-          .get();
+        // ACT
+        final snapshot = await fakeFirestore
+            .collection('deals')
+            .where('categoryId', isEqualTo: 'high-tech')
+            .get();
 
-      // ASSERT
-      expect(snapshot.docs.length, 2);
-      for (final doc in snapshot.docs) {
-        expect(doc.data()['categoryId'], 'high-tech');
-      }
-    });
+        // ASSERT
+        expect(snapshot.docs.length, 2);
+        for (final doc in snapshot.docs) {
+          expect(doc.data()['categoryId'], 'high-tech');
+        }
+      },
+    );
 
     // -------------------------------------------------------
     // DEAL-008 : Suppression d'un deal par son auteur
@@ -107,7 +113,10 @@ void main() {
       await fakeFirestore.collection('deals').doc('deal_to_delete').delete();
 
       // ASSERT
-      final snapshot = await fakeFirestore.collection('deals').doc('deal_to_delete').get();
+      final snapshot = await fakeFirestore
+          .collection('deals')
+          .doc('deal_to_delete')
+          .get();
       expect(snapshot.exists, false);
     });
 

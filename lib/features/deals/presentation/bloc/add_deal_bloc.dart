@@ -66,7 +66,7 @@ class AddDealBloc extends ChangeNotifier {
         : 0;
 
     final user = auth.FirebaseAuth.instance.currentUser!;
-    
+
     return Deal(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text.trim(),

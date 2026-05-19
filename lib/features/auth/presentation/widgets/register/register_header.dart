@@ -15,13 +15,17 @@ class RegisterHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Rejoins LebonDeal',
-          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         Text(
           'Crée ton compte pour accéder aux meilleurs deals et partager les tiens.',
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: AppColors.textMuted,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

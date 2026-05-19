@@ -31,14 +31,17 @@ class _SocialButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () => ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Connexion $label à implémenter'))),
+        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Connexion $label à implémenter')),
+        ),
         icon: FaIcon(iconData, color: AppColors.textPrimary),
         label: Text(label),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
     );

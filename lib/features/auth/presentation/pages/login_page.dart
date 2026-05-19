@@ -31,25 +31,22 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
 
     FocusScope.of(context).unfocus();
-    
+
     try {
       await authProvider.signIn(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const MainNavigation(),
-          ),
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
         );
       }
     } catch (e) {
       // L'erreur est déjà gérée dans le AuthProvider
     }
   }
-
 
   Widget _buildLoginButton(AuthProvider authProvider) {
     return ElevatedButton(
@@ -81,12 +78,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleGuestLogin(AuthProvider authProvider) async {
     try {
       await authProvider.signInAnonymously();
-      
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const MainNavigation(),
-          ),
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
         );
       }
     } catch (e) {
@@ -97,13 +92,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    
+
     if (authProvider.isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(

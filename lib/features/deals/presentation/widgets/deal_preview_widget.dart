@@ -18,10 +18,10 @@ class DealPreviewWidget extends StatelessWidget {
   final double? originalPrice;
   final String imageUrl;
 
-  bool get _hasRequiredFields => 
-      title.isNotEmpty && 
-      description.isNotEmpty && 
-      storeName.isNotEmpty && 
+  bool get _hasRequiredFields =>
+      title.isNotEmpty &&
+      description.isNotEmpty &&
+      storeName.isNotEmpty &&
       price > 0;
 
   int get _discountPercent {
@@ -53,10 +53,7 @@ class DealPreviewWidget extends StatelessWidget {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildImageSection(),
-          _buildDealInfo(),
-        ],
+        children: [_buildImageSection(), _buildDealInfo()],
       ),
     );
   }
@@ -76,11 +73,7 @@ class DealPreviewWidget extends StatelessWidget {
                 imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.image,
-                    size: 50,
-                    color: Colors.grey[400],
-                  );
+                  return Icon(Icons.image, size: 50, color: Colors.grey[400]);
                 },
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -88,17 +81,13 @@ class DealPreviewWidget extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
+                                loadingProgress.expectedTotalBytes!
                           : null,
                     ),
                   );
                 },
               )
-            : Icon(
-                Icons.image,
-                size: 50,
-                color: Colors.grey[400],
-              ),
+            : Icon(Icons.image, size: 50, color: Colors.grey[400]),
       ),
     );
   }
@@ -111,20 +100,14 @@ class DealPreviewWidget extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
             storeName,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           _buildPriceSection(),

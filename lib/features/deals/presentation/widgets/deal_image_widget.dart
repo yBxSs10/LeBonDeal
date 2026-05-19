@@ -14,7 +14,10 @@ class DealImageWidget extends StatelessWidget {
         imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Container(color: Colors.grey[200], child: const Icon(Icons.image));
+          return Container(
+            color: Colors.grey[200],
+            child: const Icon(Icons.image),
+          );
         },
       ),
     );

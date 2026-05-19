@@ -91,10 +91,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
             icon: Icon(_isSaved ? Icons.favorite : Icons.favorite_border),
             onPressed: () => setState(() => _isSaved = !_isSaved),
           ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.share), onPressed: () {}),
         ],
       ),
       body: SingleChildScrollView(

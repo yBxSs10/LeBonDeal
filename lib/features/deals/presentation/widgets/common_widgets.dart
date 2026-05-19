@@ -20,17 +20,13 @@ class EmptyStateWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: iconSize,
-            color: Theme.of(context).disabledColor,
-          ),
+          Icon(icon, size: iconSize, color: Theme.of(context).disabledColor),
           SizedBox(height: spacing),
           Text(
             message,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).disabledColor,
-                ),
+              color: Theme.of(context).disabledColor,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -42,10 +38,8 @@ class EmptyStateWidget extends StatelessWidget {
 class LoadingWidget extends StatelessWidget {
   final String message;
 
-  const LoadingWidget({
-    Key? key,
-    this.message = 'Chargement...',
-  }) : super(key: key);
+  const LoadingWidget({Key? key, this.message = 'Chargement...'})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +49,7 @@ class LoadingWidget extends StatelessWidget {
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 16.0),
-          Text(
-            message,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(message, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
     );

@@ -26,12 +26,7 @@ class Category {
       icon: Icons.laptop,
       color: Colors.green,
     ),
-    Category(
-      id: 'mode',
-      name: 'Mode',
-      icon: Icons.style,
-      color: Colors.pink,
-    ),
+    Category(id: 'mode', name: 'Mode', icon: Icons.style, color: Colors.pink),
     Category(
       id: 'maison',
       name: 'Maison',

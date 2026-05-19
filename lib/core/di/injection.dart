@@ -14,7 +14,7 @@ final getIt = GetIt.instance;
 void configureDependencies() {
   // Configurer l'injection de dépendances générée
   $initGetIt(getIt);
-  
+
   // Configurer les dépendances d'authentification
   configureAuthDependencies();
 }

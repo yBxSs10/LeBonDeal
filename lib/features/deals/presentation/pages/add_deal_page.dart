@@ -16,7 +16,7 @@ class AddDealPage extends StatefulWidget {
 
 class _AddDealPageState extends State<AddDealPage> {
   late final AddDealBloc _addDealBloc;
-  
+
   @override
   void initState() {
     super.initState();
@@ -52,10 +52,7 @@ class _AddDealPageState extends State<AddDealPage> {
                   const SizedBox(height: 16),
                   const Text(
                     'Prévisualisation',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   _buildPreview(_addDealBloc),
@@ -87,7 +84,9 @@ class _AddDealPageState extends State<AddDealPage> {
         final imageUrl = bloc.imageUrlController.text.trim();
 
         final price = double.tryParse(priceText) ?? 0;
-        final originalPrice = originalPriceText.isNotEmpty ? double.tryParse(originalPriceText) : null;
+        final originalPrice = originalPriceText.isNotEmpty
+            ? double.tryParse(originalPriceText)
+            : null;
 
         return DealPreviewWidget(
           title: title,
@@ -104,7 +103,7 @@ class _AddDealPageState extends State<AddDealPage> {
   Future<void> _handleSubmit() async {
     try {
       await _addDealBloc.submitDeal(widget.onDealAdded);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -125,5 +124,4 @@ class _AddDealPageState extends State<AddDealPage> {
       }
     }
   }
-
 }

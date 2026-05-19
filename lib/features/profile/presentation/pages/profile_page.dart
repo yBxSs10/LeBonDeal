@@ -23,12 +23,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _loadUserData() async {
     final firebaseUser = auth.FirebaseAuth.instance.currentUser;
-    
+
     if (firebaseUser != null) {
       setState(() {
         _currentUser = AppUser(
           id: firebaseUser.uid,
-          name: firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'Utilisateur',
+          name:
+              firebaseUser.displayName ??
+              firebaseUser.email?.split('@')[0] ??
+              'Utilisateur',
           email: firebaseUser.email ?? '',
           avatarUrl: firebaseUser.photoURL,
           savedDeals: [], // TODO: Load from database
@@ -46,21 +49,18 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: LoadingWidget(),
-      );
+      return const Scaffold(body: LoadingWidget());
     }
 
     if (_currentUser == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profil'),
-        ),
+        appBar: AppBar(title: const Text('Profil')),
         body: EmptyStateWidget(
           message: 'Aucun utilisateur connecté',
           icon: Icons.person_off,
           action: ElevatedButton(
-            onPressed: () => Navigator.of(context).pushReplacementNamed('/login'),
+            onPressed: () =>
+                Navigator.of(context).pushReplacementNamed('/login'),
             child: const Text('Se connecter'),
           ),
         ),
@@ -71,10 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text('Profil'),
         actions: [
-          IconButton(
-            onPressed: _editProfile,
-            icon: const Icon(Icons.edit),
-          ),
+          IconButton(onPressed: _editProfile, icon: const Icon(Icons.edit)),
         ],
       ),
       body: SingleChildScrollView(
@@ -145,14 +142,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 4),
                   Text(
                     _currentUser!.email,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -173,10 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 40),
             const Text(
               'Statistiques',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -203,20 +197,14 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 32),
             const Text(
               'Activité récente',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildRecentActivity(),
             const SizedBox(height: 32),
             const Text(
               'Paramètres',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -250,7 +238,10 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 32),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Déconnexion', style: TextStyle(color: Colors.red)),
+              title: const Text(
+                'Déconnexion',
+                style: TextStyle(color: Colors.red),
+              ),
               onTap: () => _showLogoutDialog(context),
             ),
           ],
@@ -298,7 +289,9 @@ class _ProfilePageState extends State<ProfilePage> {
   void _editProfile() {
     // TODO: Navigate to edit profile page
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Modification du profil bientôt disponible')),
+      const SnackBar(
+        content: Text('Modification du profil bientôt disponible'),
+      ),
     );
   }
 
@@ -416,11 +409,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 32,
-            color: color,
-          ),
+          Icon(icon, size: 32, color: color),
           const SizedBox(height: 8),
           Text(
             value,
@@ -433,10 +422,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],

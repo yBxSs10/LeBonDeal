@@ -17,7 +17,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> _initAuth() async {
     _user = FirebaseAuth.instance.currentUser;
     notifyListeners();
-    
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
@@ -28,7 +28,7 @@ class AuthProvider with ChangeNotifier {
     try {
       _setLoading(true);
       _error = null;
-      
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -45,7 +45,7 @@ class AuthProvider with ChangeNotifier {
     try {
       _setLoading(true);
       _error = null;
-      
+
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -66,7 +66,7 @@ class AuthProvider with ChangeNotifier {
     try {
       _setLoading(true);
       _error = null;
-      
+
       await FirebaseAuth.instance.signInAnonymously();
     } on FirebaseAuthException catch (e) {
       _error = _getErrorMessage(e.code);

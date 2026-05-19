@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   List<Deal> _getFilteredDeals() {
     final categories = DataService.getAllCategories();
     if (categories.isEmpty) return [];
-    
+
     List<Deal> deals;
     if (_selectedCategory != null) {
       deals = DataService.getDealsByCategory(_selectedCategory!.id);
@@ -39,11 +39,11 @@ class _HomePageState extends State<HomePage> {
       // When no category is selected, show all deals to ensure new deals appear
       deals = DataService.getAllDeals();
     }
-    
+
     if (_searchQuery.isNotEmpty) {
       deals = DataService.searchDeals(_searchQuery);
     }
-    
+
     return deals;
   }
 
@@ -80,19 +80,16 @@ class _HomePageState extends State<HomePage> {
               )
             else
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final deal = deals[index];
-                    final isSaved = _savedDealIds.contains(deal.id);
-                    
-                    return DealCard(
-                      deal: deal,
-                      isSaved: isSaved,
-                      onSave: () => _toggleSave(deal.id, isSaved),
-                    );
-                  },
-                  childCount: deals.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final deal = deals[index];
+                  final isSaved = _savedDealIds.contains(deal.id);
+
+                  return DealCard(
+                    deal: deal,
+                    isSaved: isSaved,
+                    onSave: () => _toggleSave(deal.id, isSaved),
+                  );
+                }, childCount: deals.length),
               ),
           ],
         ),
@@ -133,7 +130,7 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final category = categories[index];
               final isSelected = _selectedCategory?.id == category.id;
-              
+
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CategoryChip(
@@ -159,10 +156,7 @@ class _HomePageState extends State<HomePage> {
           'Deals populaires',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        TextButton(
-          onPressed: () {},
-          child: const Text('Voir tout'),
-        ),
+        TextButton(onPressed: () {}, child: const Text('Voir tout')),
       ],
     );
   }
@@ -180,7 +174,7 @@ class _HomePageState extends State<HomePage> {
   Widget? _buildFab() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return null;
-    
+
     return FloatingActionButton(
       onPressed: () => Navigator.of(context).push(
         MaterialPageRoute(

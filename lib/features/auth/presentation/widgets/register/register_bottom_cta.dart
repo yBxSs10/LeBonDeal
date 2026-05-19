@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RegisterBottomCta extends StatelessWidget {
-  const RegisterBottomCta({
-    super.key,
-    required this.onTermsPressed,
-  });
+  const RegisterBottomCta({super.key, required this.onTermsPressed});
 
   final VoidCallback onTermsPressed;
 

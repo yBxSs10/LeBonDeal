@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 
 class LebonDealLogo extends StatelessWidget {
   final double height;
-  
-  const LebonDealLogo({
-    super.key,
-    this.height = 60.0,
-  });
+
+  const LebonDealLogo({super.key, this.height = 60.0});
 
   @override
   Widget build(BuildContext context) {

@@ -23,7 +23,9 @@ class CommentItemWidget extends StatelessWidget {
                 radius: 18,
                 backgroundColor: Colors.blueGrey[100],
                 child: Text(
-                  comment.author.isNotEmpty ? comment.author[0].toUpperCase() : '?',
+                  comment.author.isNotEmpty
+                      ? comment.author[0].toUpperCase()
+                      : '?',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -34,9 +36,7 @@ class CommentItemWidget extends StatelessWidget {
                   children: [
                     Text(
                       comment.author,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       _formatCommentDate(comment.createdAt),
@@ -48,10 +48,7 @@ class CommentItemWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            comment.content,
-            style: const TextStyle(fontSize: 15),
-          ),
+          Text(comment.content, style: const TextStyle(fontSize: 15)),
         ],
       ),
     );

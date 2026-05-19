@@ -92,20 +92,23 @@ void main() {
     // SEC-005 : Les deals sont lisibles sans authentification
     // Cohérent avec la Security Rule : allow read: if true
     // -------------------------------------------------------
-    test('SEC-005 : les deals sont accessibles publiquement en lecture', () async {
-      // ARRANGE — on insère un deal public
-      await fakeFirestore.collection('deals').doc('public_deal').set({
-        'title': 'Deal public',
-        'price': 49.99,
-        'authorId': 'uid_some_user',
-      });
+    test(
+      'SEC-005 : les deals sont accessibles publiquement en lecture',
+      () async {
+        // ARRANGE — on insère un deal public
+        await fakeFirestore.collection('deals').doc('public_deal').set({
+          'title': 'Deal public',
+          'price': 49.99,
+          'authorId': 'uid_some_user',
+        });
 
-      // ACT — lecture sans auth (simulé par fakeFirestore)
-      final snapshot = await fakeFirestore.collection('deals').get();
+        // ACT — lecture sans auth (simulé par fakeFirestore)
+        final snapshot = await fakeFirestore.collection('deals').get();
 
-      // ASSERT
-      expect(snapshot.docs.isNotEmpty, true);
-      expect(snapshot.docs.first.data()['title'], 'Deal public');
-    });
+        // ASSERT
+        expect(snapshot.docs.isNotEmpty, true);
+        expect(snapshot.docs.first.data()['title'], 'Deal public');
+      },
+    );
   });
 }

@@ -10,13 +10,13 @@ class LoginForm extends StatelessWidget {
     required VoidCallback onSubmit,
     required VoidCallback onGuestLogin,
     required VoidCallback onForgotPassword,
-  })  : _formKey = formKey,
-        _emailController = emailController,
-        _passwordController = passwordController,
-        _isSubmitting = isSubmitting,
-        _onSubmit = onSubmit,
-        _onGuestLogin = onGuestLogin,
-        _onForgotPassword = onForgotPassword;
+  }) : _formKey = formKey,
+       _emailController = emailController,
+       _passwordController = passwordController,
+       _isSubmitting = isSubmitting,
+       _onSubmit = onSubmit,
+       _onGuestLogin = onGuestLogin,
+       _onForgotPassword = onForgotPassword;
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _emailController;
@@ -65,7 +65,10 @@ class LoginForm extends StatelessWidget {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Text('Se connecter'),
           ),
@@ -102,7 +105,11 @@ class _PasswordFieldState extends State<_PasswordField> {
         prefixIcon: const Icon(Icons.lock_outline_rounded),
         suffixIcon: IconButton(
           onPressed: () => setState(() => _obscure = !_obscure),
-          icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+          icon: Icon(
+            _obscure
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+          ),
         ),
       ),
       validator: (value) {

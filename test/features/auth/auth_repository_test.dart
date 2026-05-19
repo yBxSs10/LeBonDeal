@@ -13,59 +13,63 @@ void main() {
     // -------------------------------------------------------
     // AUTH-001 : Connexion avec des identifiants valides
     // -------------------------------------------------------
-    test('AUTH-001 : signIn avec email/password valides retourne UserEntity', () async {
-      // ARRANGE — utilisateur pré-enregistré dans le mock
-      final mockUser = MockUser(
-        uid: 'uid_test_001',
-        email: 'test@lebondeal.fr',
-        displayName: 'Testeur LBD',
-      );
-      final mockAuth = MockFirebaseAuth(mockUser: mockUser);
-      final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
+    test(
+      'AUTH-001 : signIn avec email/password valides retourne UserEntity',
+      () async {
+        // ARRANGE — utilisateur pré-enregistré dans le mock
+        final mockUser = MockUser(
+          uid: 'uid_test_001',
+          email: 'test@lebondeal.fr',
+          displayName: 'Testeur LBD',
+        );
+        final mockAuth = MockFirebaseAuth(mockUser: mockUser);
+        final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
 
-      // ACT
-      final result = await repo.signInWithEmailAndPassword(
-        email: 'test@lebondeal.fr',
-        password: 'password123',
-      );
+        // ACT
+        final result = await repo.signInWithEmailAndPassword(
+          email: 'test@lebondeal.fr',
+          password: 'password123',
+        );
 
-      // ASSERT
-      expect(result.isRight(), true);
-      result.fold(
-        (error) => fail('Ne devrait pas retourner une erreur'),
-        (user) {
+        // ASSERT
+        expect(result.isRight(), true);
+        result.fold((error) => fail('Ne devrait pas retourner une erreur'), (
+          user,
+        ) {
           expect(user.email, 'test@lebondeal.fr');
           expect(user.id, 'uid_test_001');
           expect(user.displayName, 'Testeur LBD');
-        },
-      );
-    });
+        });
+      },
+    );
 
     // -------------------------------------------------------
     // AUTH-002 : Inscription crée un nouveau compte
     // -------------------------------------------------------
-    test('AUTH-002 : createUser retourne un UserEntity avec displayName', () async {
-      // ARRANGE
-      final mockAuth = MockFirebaseAuth();
-      final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
+    test(
+      'AUTH-002 : createUser retourne un UserEntity avec displayName',
+      () async {
+        // ARRANGE
+        final mockAuth = MockFirebaseAuth();
+        final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
 
-      // ACT
-      final result = await repo.createUserWithEmailAndPassword(
-        email: 'nouveau@lebondeal.fr',
-        password: 'securePass456',
-        displayName: 'Nouveau Utilisateur',
-      );
+        // ACT
+        final result = await repo.createUserWithEmailAndPassword(
+          email: 'nouveau@lebondeal.fr',
+          password: 'securePass456',
+          displayName: 'Nouveau Utilisateur',
+        );
 
-      // ASSERT
-      expect(result.isRight(), true);
-      result.fold(
-        (error) => fail('Ne devrait pas retourner une erreur'),
-        (user) {
+        // ASSERT
+        expect(result.isRight(), true);
+        result.fold((error) => fail('Ne devrait pas retourner une erreur'), (
+          user,
+        ) {
           expect(user.email, 'nouveau@lebondeal.fr');
           expect(user.id, isNotEmpty);
-        },
-      );
-    });
+        });
+      },
+    );
 
     // -------------------------------------------------------
     // AUTH-003 : Déconnexion vide la session
@@ -99,21 +103,21 @@ void main() {
     // -------------------------------------------------------
     // AUTH-005 : authStateChanges émet l'utilisateur connecté
     // -------------------------------------------------------
-    test('AUTH-005 : authStateChanges émet un UserEntity après connexion', () async {
-      // ARRANGE
-      final mockUser = MockUser(
-        uid: 'uid_test_005',
-        email: 'stream@lebondeal.fr',
-      );
-      // signedIn: true → le stream émet directement l'utilisateur connecté
-      final mockAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-      final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
+    test(
+      'AUTH-005 : authStateChanges émet un UserEntity après connexion',
+      () async {
+        // ARRANGE
+        final mockUser = MockUser(
+          uid: 'uid_test_005',
+          email: 'stream@lebondeal.fr',
+        );
+        // signedIn: true → le stream émet directement l'utilisateur connecté
+        final mockAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+        final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
 
-      // ASSERT — le stream doit émettre au moins un UserEntity non null
-      expect(
-        repo.authStateChanges,
-        emitsThrough(isNotNull),
-      );
-    });
+        // ASSERT — le stream doit émettre au moins un UserEntity non null
+        expect(repo.authStateChanges, emitsThrough(isNotNull));
+      },
+    );
   });
 }

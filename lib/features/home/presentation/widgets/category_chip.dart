@@ -22,10 +22,7 @@ class CategoryChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? category.color : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: category.color,
-            width: 1,
-          ),
+          border: Border.all(color: category.color, width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

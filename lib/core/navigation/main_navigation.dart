@@ -36,10 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up),
             label: 'Tendances',
@@ -48,10 +45,7 @@ class _MainNavigationState extends State<MainNavigation> {
             icon: Icon(Icons.favorite),
             label: 'Sauvegardés',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );

@@ -13,16 +13,16 @@ class RegisterForm extends StatelessWidget {
     required VoidCallback onSubmit,
     required VoidCallback onAlreadyHaveAccount,
     required VoidCallback onTogglePasswordVisibility,
-  })  : _formKey = formKey,
-        _nameController = nameController,
-        _emailController = emailController,
-        _passwordController = passwordController,
-        _confirmPasswordController = confirmPasswordController,
-        _isSubmitting = isSubmitting,
-        _obscurePassword = obscurePassword,
-        _onSubmit = onSubmit,
-        _onAlreadyHaveAccount = onAlreadyHaveAccount,
-        _onTogglePasswordVisibility = onTogglePasswordVisibility;
+  }) : _formKey = formKey,
+       _nameController = nameController,
+       _emailController = emailController,
+       _passwordController = passwordController,
+       _confirmPasswordController = confirmPasswordController,
+       _isSubmitting = isSubmitting,
+       _obscurePassword = obscurePassword,
+       _onSubmit = onSubmit,
+       _onAlreadyHaveAccount = onAlreadyHaveAccount,
+       _onTogglePasswordVisibility = onTogglePasswordVisibility;
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _nameController;

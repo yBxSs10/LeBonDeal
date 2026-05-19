@@ -12,7 +12,7 @@ class CategoryChip extends StatelessWidget {
   final Category category;
   final bool isSelected;
   final VoidCallback? onTap;
-  
+
   // Couleur par défaut pour les catégories
   Color get _defaultColor => Colors.blue;
 
@@ -25,10 +25,7 @@ class CategoryChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? _defaultColor : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: _defaultColor,
-            width: 1,
-          ),
+          border: Border.all(color: _defaultColor, width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

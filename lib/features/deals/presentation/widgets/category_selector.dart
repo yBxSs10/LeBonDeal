@@ -19,9 +19,7 @@ class CategorySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       value: selectedCategoryId,
-      decoration: const InputDecoration(
-        labelText: 'Catégorie *',
-      ),
+      decoration: const InputDecoration(labelText: 'Catégorie *'),
       items: categories.map((category) {
         return DropdownMenuItem(
           value: category.id,

@@ -6,7 +6,8 @@ class AuthGuardWidget extends StatelessWidget {
     super.key,
     required this.child,
     this.fallbackTitle = 'Accès refusé',
-    this.fallbackMessage = 'Vous n\'avez pas les autorisations nécessaires pour ajouter une offre.',
+    this.fallbackMessage =
+        'Vous n\'avez pas les autorisations nécessaires pour ajouter une offre.',
     this.fallbackButtonText = 'Retour',
   });
 
@@ -18,12 +19,10 @@ class AuthGuardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = auth.FirebaseAuth.instance.currentUser;
-    
+
     if (user == null || user.isAnonymous) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(fallbackTitle),
-        ),
+        appBar: AppBar(title: Text(fallbackTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),

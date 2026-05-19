@@ -34,7 +34,10 @@ class CommentsSectionWidget extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -65,7 +68,8 @@ class CommentsSectionWidget extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: comments.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, index) => CommentItemWidget(comment: comments[index]),
+              itemBuilder: (_, index) =>
+                  CommentItemWidget(comment: comments[index]),
             ),
         ],
       ),

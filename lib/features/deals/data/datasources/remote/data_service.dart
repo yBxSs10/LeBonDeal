@@ -8,8 +8,10 @@ class DataService {
     Deal(
       id: '1',
       title: 'MacBook Pro M3 -30%',
-      description: 'Ordinateur portable professionnel avec puce M3, 16GB RAM, 512GB SSD',
-      imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600',
+      description:
+          'Ordinateur portable professionnel avec puce M3, 16GB RAM, 512GB SSD',
+      imageUrl:
+          'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600',
       storeName: 'Apple Store',
       price: 1399.99,
       originalPrice: 1999.99,
@@ -28,8 +30,10 @@ class DataService {
     Deal(
       id: '2',
       title: 'Nike Air Max -50%',
-      description: 'Chaussures de sport confortables et stylées, technologie Air',
-      imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
+      description:
+          'Chaussures de sport confortables et stylées, technologie Air',
+      imageUrl:
+          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
       storeName: 'Nike',
       price: 49.99,
       originalPrice: 99.99,
@@ -47,8 +51,10 @@ class DataService {
     Deal(
       id: '3',
       title: 'Smart TV 4K 55"',
-      description: 'Télévision intelligente 4K avec HDR, apps Netflix et Prime Video',
-      imageUrl: 'https://images.unsplash.com/photo-1593359677879-2d4865123e14?w=600',
+      description:
+          'Télévision intelligente 4K avec HDR, apps Netflix et Prime Video',
+      imageUrl:
+          'https://images.unsplash.com/photo-1593359677879-2d4865123e14?w=600',
       storeName: 'Samsung',
       price: 399.99,
       originalPrice: 699.99,
@@ -67,7 +73,8 @@ class DataService {
       id: '4',
       title: 'Canapé convertible -40%',
       description: 'Canapé lit avec rangement intégré, couleur gris anthracite',
-      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600',
+      imageUrl:
+          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600',
       storeName: 'IKEA',
       price: 299.99,
       originalPrice: 499.99,
@@ -84,8 +91,10 @@ class DataService {
     Deal(
       id: '5',
       title: 'PlayStation 5 Console',
-      description: 'Console de jeux vidéo dernière génération avec manette DualSense',
-      imageUrl: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=600',
+      description:
+          'Console de jeux vidéo dernière génération avec manette DualSense',
+      imageUrl:
+          'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=600',
       storeName: 'Sony',
       price: 449.99,
       originalPrice: 549.99,
@@ -136,11 +145,11 @@ class DataService {
 
   // Deals
   static List<Deal> getAllDeals() => _deals;
-  static List<Deal> getDealsByCategory(String categoryId) => 
+  static List<Deal> getDealsByCategory(String categoryId) =>
       _deals.where((deal) => deal.categoryId == categoryId).toList();
-  static List<Deal> getTrendingDeals() => 
+  static List<Deal> getTrendingDeals() =>
       _deals.where((deal) => deal.isTrending).toList();
-  static List<Deal> getPopularDeals() => 
+  static List<Deal> getPopularDeals() =>
       _deals.where((deal) => deal.isPopular).toList();
   static List<Deal> searchDeals(String query) => _deals.where((deal) {
     final q = query.toLowerCase();
@@ -148,7 +157,7 @@ class DataService {
         deal.description.toLowerCase().contains(q) ||
         deal.storeName.toLowerCase().contains(q);
   }).toList();
-  static List<Deal> getSavedDeals(List<String> savedDealIds) => 
+  static List<Deal> getSavedDeals(List<String> savedDealIds) =>
       _deals.where((deal) => savedDealIds.contains(deal.id)).toList();
 
   // Categories
@@ -168,12 +177,7 @@ class DataService {
         icon: Icons.laptop,
         color: Colors.green,
       ),
-      Category(
-        id: 'mode',
-        name: 'Mode',
-        icon: Icons.style,
-        color: Colors.pink,
-      ),
+      Category(id: 'mode', name: 'Mode', icon: Icons.style, color: Colors.pink),
       Category(
         id: 'maison',
         name: 'Maison',
@@ -205,10 +209,10 @@ class DataService {
         color: Colors.pinkAccent,
       ),
     ];
-    
+
     return modelCategories;
   }
-  
+
   static Category? getCategoryById(String id) {
     try {
       return getAllCategories().firstWhere((cat) => cat.id == id);
@@ -224,7 +228,9 @@ class DataService {
 
   // Comments
   static List<Comment> getCommentsByDealId(String dealId) {
-    final comments = _comments.where((comment) => comment.dealId == dealId).toList();
+    final comments = _comments
+        .where((comment) => comment.dealId == dealId)
+        .toList();
     comments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return comments;
   }

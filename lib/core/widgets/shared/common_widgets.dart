@@ -5,9 +5,7 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 }
 
@@ -31,24 +29,14 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: Colors.grey,
-            ),
+            Icon(icon, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 16), action!],
           ],
         ),
       ),
@@ -57,11 +45,7 @@ class EmptyStateWidget extends StatelessWidget {
 }
 
 class CustomErrorWidget extends StatelessWidget {
-  const CustomErrorWidget({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const CustomErrorWidget({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;
@@ -74,19 +58,12 @@ class CustomErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.red,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.red),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),

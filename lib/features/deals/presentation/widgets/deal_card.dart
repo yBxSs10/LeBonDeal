@@ -21,13 +21,15 @@ class DealCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.all(8),
       child: InkWell(
-        onTap: onTap ?? () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => DealDetailPage(deal: deal),
-            ),
-          );
-        },
+        onTap:
+            onTap ??
+            () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DealDetailPage(deal: deal),
+                ),
+              );
+            },
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,10 +41,14 @@ class DealCard extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
                   ),
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
                     child: Image.network(
                       deal.imageUrl,
                       fit: BoxFit.cover,
@@ -64,7 +70,7 @@ class DealCard extends StatelessWidget {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
+                                        loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           ),
@@ -78,7 +84,10 @@ class DealCard extends StatelessWidget {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(12),
@@ -123,10 +132,7 @@ class DealCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     deal.storeName,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -156,7 +162,10 @@ class DealCard extends StatelessWidget {
                       ),
                       if (deal.discountPercent > 0)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(12),
@@ -175,7 +184,11 @@ class DealCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.favorite_border, size: 14, color: Colors.grey[600]),
+                      Icon(
+                        Icons.favorite_border,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${deal.favorites}',

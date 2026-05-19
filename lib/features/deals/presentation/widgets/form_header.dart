@@ -4,11 +4,8 @@ class FormHeader extends StatelessWidget implements PreferredSizeWidget {
   final bool isSubmitting;
   final VoidCallback? onPublish;
 
-  const FormHeader({
-    Key? key,
-    required this.isSubmitting,
-    this.onPublish,
-  }) : super(key: key);
+  const FormHeader({Key? key, required this.isSubmitting, this.onPublish})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

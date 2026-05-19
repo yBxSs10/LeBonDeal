@@ -7,7 +7,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
 
   AuthRepositoryImpl({firebase_auth.FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+    : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
 
   @override
   Stream<UserEntity?> get authStateChanges {
@@ -50,10 +50,10 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         password: password,
       );
-      
+
       await userCredential.user?.updateDisplayName(displayName);
       await userCredential.user?.reload();
-      
+
       return Right((await _firebaseAuth.currentUser)!.toUserEntity());
     } on firebase_auth.FirebaseAuthException catch (e) {
       return Left(_mapAuthExceptionToMessage(e));
@@ -80,7 +80,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on firebase_auth.FirebaseAuthException catch (e) {
       return Left(_mapAuthExceptionToMessage(e));
     } catch (e) {
-      return const Left('Erreur lors de l\'envoi de l\'email de réinitialisation');
+      return const Left(
+        'Erreur lors de l\'envoi de l\'email de réinitialisation',
+      );
     }
   }
 
@@ -101,7 +103,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (photoUrl != null) {
         await user.updatePhotoURL(photoUrl);
       }
-      
+
       await user.reload();
       return const Right(unit);
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -111,7 +113,9 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  String _mapAuthExceptionToMessage(firebase_auth.FirebaseAuthException exception) {
+  String _mapAuthExceptionToMessage(
+    firebase_auth.FirebaseAuthException exception,
+  ) {
     switch (exception.code) {
       case 'email-already-in-use':
         return 'Cette adresse email est déjà utilisée';

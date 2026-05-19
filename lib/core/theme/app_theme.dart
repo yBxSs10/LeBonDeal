@@ -47,7 +47,10 @@ class AppTheme {
         labelStyle: textTheme.labelLarge,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      dividerTheme: const DividerThemeData(color: AppColors.border, thickness: 1),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.border,
+        thickness: 1,
+      ),
       bottomNavigationBarTheme: base.bottomNavigationBarTheme.copyWith(
         backgroundColor: Colors.white,
         selectedItemColor: AppColors.primary,
@@ -62,7 +65,9 @@ class AppTheme {
     return InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
-      hintStyle: base.textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
+      hintStyle: base.textTheme.bodyMedium?.copyWith(
+        color: AppColors.textMuted,
+      ),
       border: _outlineBorder(),
       enabledBorder: _outlineBorder(),
       focusedBorder: _outlineBorder(color: AppColors.primary, width: 1.6),
@@ -87,7 +92,10 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
+        textStyle: GoogleFonts.poppins(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
       ),
     );
   }

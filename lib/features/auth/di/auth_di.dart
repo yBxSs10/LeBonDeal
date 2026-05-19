@@ -9,12 +9,12 @@ import '../data/repositories/auth_repository_impl.dart';
 /// Configure les dépendances liées à l'authentification
 void configureAuthDependencies() {
   final getIt = GetIt.instance;
-  
+
   // Enregistrer FirebaseAuth s'il n'est pas déjà enregistré
   if (!getIt.isRegistered<FirebaseAuth>()) {
     getIt.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   }
-  
+
   // Enregistrer le repository d'authentification
   if (!getIt.isRegistered<AuthRepository>()) {
     getIt.registerLazySingleton<AuthRepository>(

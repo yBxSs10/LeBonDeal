@@ -56,13 +56,13 @@ class Category {
     if (icon == Icons.face_retouching_natural) return 'face_retouching_natural';
     return 'category';
   }
-  
+
   static String _colorToString(Color color) {
     if (color == Colors.red) return 'red';
     if (color == Colors.green) return 'green';
     return 'blue'; // Par défaut
   }
-  
+
   static Color _colorFromString(String colorName) {
     switch (colorName.toLowerCase()) {
       case 'red':
@@ -78,9 +78,7 @@ class Category {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Category &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+      other is Category && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

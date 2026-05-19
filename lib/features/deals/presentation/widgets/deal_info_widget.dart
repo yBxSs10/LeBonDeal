@@ -27,7 +27,11 @@ class DealInfoWidget extends StatelessWidget {
             children: [
               Text(
                 deal.priceLabel,
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
               ),
               if (deal.discountPercent > 0) ...[
                 const SizedBox(width: 12),
@@ -41,14 +45,20 @@ class DealInfoWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '-${deal.discountPercent}%',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

@@ -70,9 +70,9 @@ void main() {
 
       // ASSERT
       expect(modified.title, 'Deal original'); // inchangé
-      expect(modified.price, 80.0);            // modifié
+      expect(modified.price, 80.0); // modifié
       expect(modified.authorId, original.authorId); // inchangé
-      expect(modified.id, original.id);        // inchangé
+      expect(modified.id, original.id); // inchangé
     });
 
     // -------------------------------------------------------

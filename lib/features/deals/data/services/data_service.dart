@@ -7,8 +7,10 @@ class DataService {
     Deal(
       id: '1',
       title: 'MacBook Pro M3 -30%',
-      description: 'Ordinateur portable professionnel avec puce M3, 16GB RAM, 512GB SSD',
-      imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600',
+      description:
+          'Ordinateur portable professionnel avec puce M3, 16GB RAM, 512GB SSD',
+      imageUrl:
+          'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600',
       storeName: 'Apple Store',
       price: 1399.99,
       originalPrice: 1999.99,
@@ -27,8 +29,10 @@ class DataService {
     Deal(
       id: '2',
       title: 'Nike Air Max -50%',
-      description: 'Chaussures de sport confortables et stylées, technologie Air',
-      imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
+      description:
+          'Chaussures de sport confortables et stylées, technologie Air',
+      imageUrl:
+          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
       storeName: 'Nike',
       price: 49.99,
       originalPrice: 99.99,
@@ -47,8 +51,10 @@ class DataService {
     Deal(
       id: '3',
       title: 'Smart TV 4K 55"',
-      description: 'Télévision intelligente 4K avec HDR, apps Netflix et Prime Video',
-      imageUrl: 'https://images.unsplash.com/photo-1593359677879-2d4865123e14?w=600',
+      description:
+          'Télévision intelligente 4K avec HDR, apps Netflix et Prime Video',
+      imageUrl:
+          'https://images.unsplash.com/photo-1593359677879-2d4865123e14?w=600',
       storeName: 'Samsung',
       price: 399.99,
       originalPrice: 599.99,
@@ -67,8 +73,10 @@ class DataService {
     Deal(
       id: '4',
       title: 'Canapé d\'angle en cuir',
-      description: 'Canapé d\'angle en cuir véritable, couleur marron, 5 places',
-      imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600',
+      description:
+          'Canapé d\'angle en cuir véritable, couleur marron, 5 places',
+      imageUrl:
+          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600',
       storeName: 'Maisons du Monde',
       price: 899.99,
       originalPrice: 1299.99,
@@ -87,8 +95,10 @@ class DataService {
     Deal(
       id: '5',
       title: 'Kit maquillage professionnel',
-      description: 'Kit complet de maquillage professionnel avec pinceaux inclus',
-      imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600',
+      description:
+          'Kit complet de maquillage professionnel avec pinceaux inclus',
+      imageUrl:
+          'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600',
       storeName: 'Sephora',
       price: 79.99,
       originalPrice: 149.99,
@@ -119,11 +129,36 @@ class DataService {
   // Méthode pour récupérer toutes les catégories
   static List<Category> getAllCategories() {
     return [
-      const Category(id: '1', name: 'Tous', icon: Icons.all_inclusive, color: Colors.blue),
-      const Category(id: '2', name: 'High-Tech', icon: Icons.computer, color: Colors.green),
-      const Category(id: '3', name: 'Mode', icon: Icons.shopping_bag, color: Colors.purple),
-      const Category(id: '4', name: 'Maison', icon: Icons.home, color: Colors.orange),
-      const Category(id: '5', name: 'Beauté', icon: Icons.face_retouching_natural, color: Colors.pink),
+      const Category(
+        id: '1',
+        name: 'Tous',
+        icon: Icons.all_inclusive,
+        color: Colors.blue,
+      ),
+      const Category(
+        id: '2',
+        name: 'High-Tech',
+        icon: Icons.computer,
+        color: Colors.green,
+      ),
+      const Category(
+        id: '3',
+        name: 'Mode',
+        icon: Icons.shopping_bag,
+        color: Colors.purple,
+      ),
+      const Category(
+        id: '4',
+        name: 'Maison',
+        icon: Icons.home,
+        color: Colors.orange,
+      ),
+      const Category(
+        id: '5',
+        name: 'Beauté',
+        icon: Icons.face_retouching_natural,
+        color: Colors.pink,
+      ),
     ];
   }
 
@@ -137,9 +172,11 @@ class DataService {
   static List<Deal> searchDeals(String query) {
     if (query.isEmpty) return _deals;
     return _deals
-        .where((deal) =>
-            deal.title.toLowerCase().contains(query.toLowerCase()) ||
-            deal.description.toLowerCase().contains(query.toLowerCase()))
+        .where(
+          (deal) =>
+              deal.title.toLowerCase().contains(query.toLowerCase()) ||
+              deal.description.toLowerCase().contains(query.toLowerCase()),
+        )
         .toList();
   }
 

@@ -23,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
   bool _isSubmitting = false;
   bool _obscurePassword = true;
-  
+
   final AuthRepository _authRepository = getIt<AuthRepository>();
 
   @override
@@ -55,11 +55,12 @@ class _RegisterPageState extends State<RegisterPage> {
       result.fold(
         (error) {
           String errorMessage = 'Une erreur est survenue';
-          
+
           if (error.contains('email-already-in-use')) {
             errorMessage = 'Un compte existe déjà avec cet email';
           } else if (error.contains('weak-password')) {
-            errorMessage = 'Le mot de passe est trop faible (6 caractères minimum)';
+            errorMessage =
+                'Le mot de passe est trop faible (6 caractères minimum)';
           } else if (error.contains('invalid-email')) {
             errorMessage = 'Adresse email invalide';
           } else if (error.contains('operation-not-allowed')) {
@@ -67,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (error.contains('too-many-requests')) {
             errorMessage = 'Trop de tentatives. Réessayez plus tard.';
           }
-          
+
           _showMessage(errorMessage);
         },
         (user) {
@@ -89,9 +90,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -134,12 +135,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   const RegisterDivider(),
                   const SizedBox(height: 16),
                   RegisterSocialButtons(
-                    onGooglePressed: () => _showMessage('Connexion avec Google à implémenter'),
-                    onFacebookPressed: () => _showMessage('Connexion avec Facebook à implémenter'),
+                    onGooglePressed: () =>
+                        _showMessage('Connexion avec Google à implémenter'),
+                    onFacebookPressed: () =>
+                        _showMessage('Connexion avec Facebook à implémenter'),
                   ),
                   const SizedBox(height: 32),
                   RegisterBottomCta(
-                    onTermsPressed: () => _showMessage('Conditions d\'utilisation à implémenter'),
+                    onTermsPressed: () =>
+                        _showMessage('Conditions d\'utilisation à implémenter'),
                   ),
                 ],
               ),
@@ -149,6 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;

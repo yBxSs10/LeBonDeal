@@ -14,7 +14,9 @@ class LoginBottomCta extends StatelessWidget {
       children: [
         Text(
           'Pas encore de compte ? ',
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: AppColors.textPrimary,
+          ),
         ),
         TextButton(
           onPressed: () {
