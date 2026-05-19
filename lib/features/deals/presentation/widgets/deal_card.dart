@@ -18,20 +18,27 @@ class DealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: InkWell(
-        onTap:
-            onTap ??
-            () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => DealDetailPage(deal: deal),
-                ),
-              );
-            },
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
+    return Semantics(
+      label:
+          '${deal.title}, ${deal.storeName}, '
+          '${deal.priceLabel}'
+          '${deal.discountPercent > 0 ? ', -${deal.discountPercent}%' : ''}',
+      hint: 'Appuyez pour voir les détails du deal',
+      button: true,
+      child: Card(
+        margin: const EdgeInsets.all(8),
+        child: InkWell(
+          onTap:
+              onTap ??
+              () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => DealDetailPage(deal: deal),
+                  ),
+                );
+              },
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
@@ -105,11 +112,17 @@ class DealCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: IconButton(
-                    onPressed: onSave,
-                    icon: Icon(
-                      isSaved ? Icons.favorite : Icons.favorite_border,
-                      color: isSaved ? Colors.red : Colors.grey,
+                  child: Semantics(
+                    label: isSaved
+                        ? 'Retirer ${deal.title} des favoris'
+                        : 'Ajouter ${deal.title} aux favoris',
+                    button: true,
+                    child: IconButton(
+                      onPressed: onSave,
+                      icon: Icon(
+                        isSaved ? Icons.favorite : Icons.favorite_border,
+                        color: isSaved ? Colors.red : Colors.grey,
+                      ),
                     ),
                   ),
                 ),
@@ -214,6 +227,7 @@ class DealCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

@@ -175,13 +175,18 @@ class _HomePageState extends State<HomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return null;
 
-    return FloatingActionButton(
-      onPressed: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AddDealPage(onDealAdded: _refreshDeals),
+    return Semantics(
+      label: 'Publier un nouveau deal',
+      button: true,
+      child: FloatingActionButton(
+        tooltip: 'Publier un deal',
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AddDealPage(onDealAdded: _refreshDeals),
+          ),
         ),
+        child: const Icon(Icons.add),
       ),
-      child: const Icon(Icons.add),
     );
   }
 }

@@ -103,12 +103,18 @@ class _PasswordFieldState extends State<_PasswordField> {
       decoration: InputDecoration(
         labelText: 'Mot de passe',
         prefixIcon: const Icon(Icons.lock_outline_rounded),
-        suffixIcon: IconButton(
-          onPressed: () => setState(() => _obscure = !_obscure),
-          icon: Icon(
-            _obscure
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
+        suffixIcon: Semantics(
+          label: _obscure
+              ? 'Afficher le mot de passe'
+              : 'Masquer le mot de passe',
+          button: true,
+          child: IconButton(
+            onPressed: () => setState(() => _obscure = !_obscure),
+            icon: Icon(
+              _obscure
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
+            ),
           ),
         ),
       ),
