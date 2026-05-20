@@ -62,3 +62,6 @@ lcov.info
 
 # VS Code
 .vscode/
+
+# Documents locaux (dossiers RNCP)
+docs/
