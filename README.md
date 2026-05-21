@@ -118,19 +118,43 @@ test/
 
 ---
 
-## ⚙️ CI/CD
+## ⚙️ CI/CD et Intégration Continue
 
-Un pipeline GitHub Actions se déclenche automatiquement à chaque `push` sur `main` :
+### Protocole de branches
+
+Le projet suit un modèle de branches à 3 niveaux :
 
 ```
-✅ Checkout code
-✅ Setup Flutter (stable)
-✅ Install dependencies
-✅ Check formatting (dart format)
-✅ Analyze code (flutter analyze)
-✅ Run unit tests (20/20)
-✅ Run tests with coverage
-✅ Upload coverage artifact
+main        ← branche de production, protégée
+  └── develop     ← branche d'intégration
+        └── feature/*   ← développement de fonctionnalités
+            hotfix/*    ← correctifs urgents → merge direct sur main
+```
+
+**Règles de fusion :**
+- `feature/*` → `develop` : merge via Pull Request, CI doit être verte
+- `develop` → `main` : merge via Pull Request après validation complète
+- `hotfix/*` → `main` : merge direct autorisé uniquement pour les correctifs critiques
+- Les push directs sur `main` sont interdits
+
+### Pipeline CI/CD
+
+Le pipeline GitHub Actions se déclenche automatiquement :
+- à chaque `push` sur `main` ou `develop`
+- à chaque `pull_request` vers `main`
+
+**Séquence d'intégration (9 étapes) :**
+
+```
+1. Checkout code          — récupération du code source
+2. Setup Flutter          — installation Flutter stable + cache
+3. Install dependencies   — flutter pub get
+4. Check formatting       — dart format (bloquant si écart)
+5. Analyze code           — flutter analyze (lint statique)
+6. Run unit tests         — 20 tests unitaires (bloquant si échec)
+7. Run tests with coverage— génération rapport lcov
+8. Upload coverage        — artifact 30 jours
+9. Verify monitoring deps — vérification Crashlytics + Performance
 ```
 
 Consultez l'onglet **Actions** du dépôt pour l'historique des exécutions.
