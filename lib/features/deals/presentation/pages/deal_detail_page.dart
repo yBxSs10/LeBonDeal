@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../comments/data/models/comment.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
-import '../../data/datasources/remote/data_service.dart';
+import '../../data/datasources/remote/firestore_service.dart';
 import '../widgets/deal_image_widget.dart';
 import '../widgets/deal_temperature_widget.dart';
 import '../widgets/deal_info_widget.dart';
@@ -23,30 +23,26 @@ class DealDetailPage extends StatefulWidget {
 class _DealDetailPageState extends State<DealDetailPage> {
   bool _isSaved = false;
   int _temperature = 50;
-  late int _commentCount;
-
-  List<Comment> _comments = const [];
-  bool _isLoadingComments = true;
   bool _isSubmittingComment = false;
 
   @override
   void initState() {
     super.initState();
-    _commentCount = widget.deal.comments;
-    _loadComments();
+    _loadSavedState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> _loadSavedState() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) return;
+    final ids = await FirestoreService.getSavedDealIdsStream(user.uid).first;
+    if (mounted) setState(() => _isSaved = ids.contains(widget.deal.id));
   }
 
-  void _loadComments() {
-    final comments = DataService.getCommentsByDealId(widget.deal.id);
-    setState(() {
-      _comments = comments;
-      _isLoadingComments = false;
-    });
+  Future<void> _toggleSave() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) return;
+    await FirestoreService.toggleSavedDeal(user.uid, widget.deal.id, _isSaved);
+    if (mounted) setState(() => _isSaved = !_isSaved);
   }
 
   Future<void> _submitComment(String content) async {
@@ -61,23 +57,15 @@ class _DealDetailPageState extends State<DealDetailPage> {
     setState(() => _isSubmittingComment = true);
     try {
       final comment = Comment(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: '',
         dealId: widget.deal.id,
         author: user.displayName ?? user.email ?? 'Utilisateur',
         content: content,
         createdAt: DateTime.now(),
       );
-
-      DataService.addComment(comment);
-
-      setState(() {
-        _comments = [comment, ..._comments];
-        _commentCount += 1;
-      });
+      await FirestoreService.addComment(comment, user.uid);
     } finally {
-      if (mounted) {
-        setState(() => _isSubmittingComment = false);
-      }
+      if (mounted) setState(() => _isSubmittingComment = false);
     }
   }
 
@@ -89,7 +77,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
         actions: [
           IconButton(
             icon: Icon(_isSaved ? Icons.favorite : Icons.favorite_border),
-            onPressed: () => setState(() => _isSaved = !_isSaved),
+            onPressed: _toggleSave,
           ),
           IconButton(icon: const Icon(Icons.share), onPressed: () {}),
         ],
@@ -101,18 +89,30 @@ class _DealDetailPageState extends State<DealDetailPage> {
             DealImageWidget(imageUrl: widget.deal.imageUrl),
             DealTemperatureWidget(temperature: _temperature),
             DealInfoWidget(deal: widget.deal),
-            DealStatsWidget(
-              commentCount: _commentCount,
-              favorites: widget.deal.favorites,
-              shares: widget.deal.shares,
-            ),
-            DealDescriptionWidget(deal: widget.deal),
-            CommentsSectionWidget(
-              comments: _comments,
-              commentCount: _commentCount,
-              isLoadingComments: _isLoadingComments,
-              isSubmittingComment: _isSubmittingComment,
-              onSubmitComment: _submitComment,
+            StreamBuilder<List<Comment>>(
+              stream: FirestoreService.getCommentsStream(widget.deal.id),
+              builder: (context, snapshot) {
+                final comments = snapshot.data ?? [];
+                final count = comments.length;
+                return Column(
+                  children: [
+                    DealStatsWidget(
+                      commentCount: count,
+                      favorites: widget.deal.favorites,
+                      shares: widget.deal.shares,
+                    ),
+                    DealDescriptionWidget(deal: widget.deal),
+                    CommentsSectionWidget(
+                      comments: comments,
+                      commentCount: count,
+                      isLoadingComments:
+                          snapshot.connectionState == ConnectionState.waiting,
+                      isSubmittingComment: _isSubmittingComment,
+                      onSubmitComment: _submitComment,
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

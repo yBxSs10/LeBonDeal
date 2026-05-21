@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:lebondeal/features/deals/domain/domain.dart';
+import 'package:flutter/material.dart';
 import 'package:lebondeal/features/categories/domain/entities/category.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/data_service.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/deals/domain/domain.dart';
+
+import '../../../../../core/widgets/shared/common_widgets.dart';
 import '../../../../../core/widgets/shared/lebondeal_logo.dart';
-import '../../../deals/presentation/widgets/deal_card.dart';
-import '../../../../features/categories/presentation/widgets/category_chip.dart';
 import '../../../../../core/widgets/shared/search_bar.dart' as custom_search;
+import '../../../../features/categories/presentation/widgets/category_chip.dart';
 import '../../../deals/presentation/pages/add_deal_page.dart';
+import '../../../deals/presentation/widgets/deal_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,38 +23,63 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Category? _selectedCategory;
   String _searchQuery = '';
-  final List<String> _savedDealIds = ['1', '3', '5'];
+  Set<String> _savedDealIds = {};
+  StreamSubscription<Set<String>>? _savedSub;
 
-  void _refreshDeals() {
-    setState(() {
-      // Reset category filter to show all deals including the newly added one
-      _selectedCategory = null;
+  Stream<List<Deal>> _dealsStream = FirestoreService.getAllDealsStream();
+
+  @override
+  void initState() {
+    super.initState();
+    _listenToSavedDeals();
+  }
+
+  void _listenToSavedDeals() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) return;
+    _savedSub = FirestoreService.getSavedDealIdsStream(user.uid).listen((ids) {
+      if (mounted) setState(() => _savedDealIds = ids);
     });
   }
 
-  List<Deal> _getFilteredDeals() {
-    final categories = DataService.getAllCategories();
-    if (categories.isEmpty) return [];
+  @override
+  void dispose() {
+    _savedSub?.cancel();
+    super.dispose();
+  }
 
-    List<Deal> deals;
-    if (_selectedCategory != null) {
-      deals = DataService.getDealsByCategory(_selectedCategory!.id);
-    } else {
-      // When no category is selected, show all deals to ensure new deals appear
-      deals = DataService.getAllDeals();
-    }
+  void _onCategorySelected(Category category) {
+    final alreadySelected = _selectedCategory?.id == category.id;
+    setState(() {
+      _selectedCategory = alreadySelected ? null : category;
+      _dealsStream = _selectedCategory != null
+          ? FirestoreService.getDealsByCategoryStream(_selectedCategory!.id)
+          : FirestoreService.getAllDealsStream();
+    });
+  }
 
-    if (_searchQuery.isNotEmpty) {
-      deals = DataService.searchDeals(_searchQuery);
-    }
+  List<Deal> _filter(List<Deal> deals) {
+    if (_searchQuery.isEmpty) return deals;
+    final q = _searchQuery.toLowerCase();
+    return deals
+        .where(
+          (d) =>
+              d.title.toLowerCase().contains(q) ||
+              d.description.toLowerCase().contains(q) ||
+              d.storeName.toLowerCase().contains(q),
+        )
+        .toList();
+  }
 
-    return deals;
+  Future<void> _toggleSave(String dealId, bool isSaved) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) return;
+    await FirestoreService.toggleSavedDeal(user.uid, dealId, isSaved);
   }
 
   @override
   Widget build(BuildContext context) {
-    final deals = _getFilteredDeals();
-    final categories = DataService.getAllCategories();
+    final categories = FirestoreService.getAllCategories();
 
     return Scaffold(
       body: SafeArea(
@@ -64,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     custom_search.SearchBar(
-                      onSearch: (query) => setState(() => _searchQuery = query),
+                      onSearch: (q) => setState(() => _searchQuery = q),
                     ),
                     const SizedBox(height: 16),
                     _buildCategoriesSection(categories),
@@ -74,23 +103,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            if (deals.isEmpty)
-              const SliverFillRemaining(
-                child: Center(child: Text('Aucun deal trouvé')),
-              )
-            else
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final deal = deals[index];
-                  final isSaved = _savedDealIds.contains(deal.id);
-
-                  return DealCard(
-                    deal: deal,
-                    isSaved: isSaved,
-                    onSave: () => _toggleSave(deal.id, isSaved),
-                  );
-                }, childCount: deals.length),
-              ),
+            _buildDealsList(),
           ],
         ),
       ),
@@ -128,17 +141,13 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             itemCount: categories.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
-              final isSelected = _selectedCategory?.id == category.id;
-
+              final cat = categories[index];
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CategoryChip(
-                  category: category,
-                  isSelected: isSelected,
-                  onTap: () => setState(() {
-                    _selectedCategory = isSelected ? null : category;
-                  }),
+                  category: cat,
+                  isSelected: _selectedCategory?.id == cat.id,
+                  onTap: () => _onCategorySelected(cat),
                 ),
               );
             },
@@ -161,14 +170,48 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _toggleSave(String dealId, bool isSaved) {
-    setState(() {
-      if (isSaved) {
-        _savedDealIds.remove(dealId);
-      } else {
-        _savedDealIds.add(dealId);
-      }
-    });
+  Widget _buildDealsList() {
+    return StreamBuilder<List<Deal>>(
+      stream: _dealsStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SliverFillRemaining(child: LoadingWidget());
+        }
+        if (snapshot.hasError) {
+          return SliverFillRemaining(
+            child: CustomErrorWidget(
+              message: 'Erreur de chargement',
+              onRetry: () => setState(() {
+                _dealsStream = FirestoreService.getAllDealsStream();
+              }),
+            ),
+          );
+        }
+
+        final deals = _filter(snapshot.data ?? []);
+
+        if (deals.isEmpty) {
+          return const SliverFillRemaining(
+            child: EmptyStateWidget(
+              message: 'Aucun deal trouvé',
+              icon: Icons.search_off,
+            ),
+          );
+        }
+
+        return SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final deal = deals[index];
+            final isSaved = _savedDealIds.contains(deal.id);
+            return DealCard(
+              deal: deal,
+              isSaved: isSaved,
+              onSave: () => _toggleSave(deal.id, isSaved),
+            );
+          }, childCount: deals.length),
+        );
+      },
+    );
   }
 
   Widget? _buildFab() {
@@ -180,11 +223,9 @@ class _HomePageState extends State<HomePage> {
       button: true,
       child: FloatingActionButton(
         tooltip: 'Publier un deal',
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => AddDealPage(onDealAdded: _refreshDeals),
-          ),
-        ),
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const AddDealPage())),
         child: const Icon(Icons.add),
       ),
     );
