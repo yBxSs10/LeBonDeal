@@ -50,3 +50,9 @@ jobs:
           name: coverage-report
           path: coverage/lcov.info
           retention-days: 30
+
+      # 9. Vérifier que les dépendances de monitoring sont présentes
+      - name: Verify monitoring dependencies
+        run: |
+          grep -q "firebase_crashlytics" pubspec.yaml && echo "✅ Crashlytics présent" || (echo "❌ Crashlytics manquant" && exit 1)
+          grep -q "firebase_performance" pubspec.yaml && echo "✅ Performance Monitoring présent" || (echo "❌ Performance Monitoring manquant" && exit 1)
