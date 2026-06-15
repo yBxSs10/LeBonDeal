@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 
-import '../../../categories/domain/entities/category.dart';
-import '../../data/datasources/remote/firestore_service.dart';
-import '../../domain/entities/deal.dart';
+import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/deals/domain/entities/deal.dart';
 
 class AddDealBloc extends ChangeNotifier {
   final _formKey = GlobalKey<FormState>();
@@ -30,7 +31,7 @@ class AddDealBloc extends ChangeNotifier {
   List<Category> get categories => _categories;
 
   AddDealBloc() {
-    _categories = FirestoreService.getAllCategories();
+    _categories = getIt<FirestoreService>().getAllCategories();
     if (_categories.isNotEmpty) _selectedCategoryId = _categories.first.id;
   }
 
@@ -90,7 +91,7 @@ class AddDealBloc extends ChangeNotifier {
 
     setSubmitting(true);
     try {
-      await FirestoreService.addDeal(_buildDeal());
+      await getIt<FirestoreService>().addDeal(_buildDeal());
       onDealAdded?.call();
     } finally {
       setSubmitting(false);

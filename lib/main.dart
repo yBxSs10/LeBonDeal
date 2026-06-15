@@ -7,23 +7,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'core/di/injection.dart';
 import 'features/auth/domain/providers/auth_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on FirebaseException catch (e) {
+    if (e.code != 'duplicate-app') rethrow;
+  }
 
-  // Crashlytics — capture toutes les erreurs Flutter non gérées
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  // GetIt doit être configuré avant tout le reste
+  configureDependencies();
 
-  // Performance Monitoring — suivi des traces réseau et personnalisées
-  await FirebasePerformance.instance.setPerformanceCollectionEnabled(true);
+  // Crashlytics et Performance : setup conditionnel si Firebase est accessible côté Dart
+  if (Firebase.apps.isNotEmpty) {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+    await FirebasePerformance.instance.setPerformanceCollectionEnabled(true);
+  }
 
   runApp(
     MultiProvider(

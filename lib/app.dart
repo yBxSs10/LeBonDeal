@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import 'core/di/injection.dart';
 import 'core/navigation/main_navigation.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/pages/login_page.dart';
@@ -12,8 +11,6 @@ class LebonDealApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    configureDependencies();
-
     return MaterialApp(
       title: 'LebonDeal',
       debugShowCheckedModeBanner: false,

@@ -83,8 +83,8 @@ void main() {
       final deal = makeDeal(price: 49.99);
 
       // ASSERT
-      expect(deal.priceLabel, '\$49.99');
-      expect(deal.originalPriceLabel, '\$999.99');
+      expect(deal.priceLabel, '49.99 €');
+      expect(deal.originalPriceLabel, '999.99 €');
     });
 
     // -------------------------------------------------------

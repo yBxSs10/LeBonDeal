@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../comments/data/models/comment.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 import '../../data/datasources/remote/firestore_service.dart';
@@ -22,32 +25,84 @@ class DealDetailPage extends StatefulWidget {
 
 class _DealDetailPageState extends State<DealDetailPage> {
   bool _isSaved = false;
-  int _temperature = 50;
   bool _isSubmittingComment = false;
+
+  // ── Streams vote ────────────────────────────────────────────────────────────
+  StreamSubscription<int>? _temperatureSub;
+  StreamSubscription<int>? _userVoteSub;
+  int _temperature = 50;
+  int _userVote = 0;
+
+  User? get _user => FirebaseAuth.instance.currentUser;
+  bool get _canVote => _user != null && !_user!.isAnonymous;
 
   @override
   void initState() {
     super.initState();
     _loadSavedState();
+    _subscribeToTemperature();
+  }
+
+  @override
+  void dispose() {
+    _temperatureSub?.cancel();
+    _userVoteSub?.cancel();
+    super.dispose();
+  }
+
+  void _subscribeToTemperature() {
+    // Stream sur le deal pour la température en temps réel
+    _temperatureSub = getIt<FirestoreService>()
+        .getAllDealsStream()
+        .map((deals) {
+          final match = deals.where((d) => d.id == widget.deal.id);
+          return match.isNotEmpty
+              ? match.first.temperature
+              : widget.deal.temperature;
+        })
+        .listen((t) {
+          if (mounted) setState(() => _temperature = t);
+        });
+
+    // Stream sur le vote de l'utilisateur courant
+    if (_canVote) {
+      _userVoteSub = getIt<FirestoreService>()
+          .getUserVoteStream(_user!.uid, widget.deal.id)
+          .listen((v) {
+            if (mounted) setState(() => _userVote = v);
+          });
+    }
   }
 
   Future<void> _loadSavedState() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.isAnonymous) return;
-    final ids = await FirestoreService.getSavedDealIdsStream(user.uid).first;
+    if (!_canVote) return;
+    final ids = await getIt<FirestoreService>()
+        .getSavedDealIdsStream(_user!.uid)
+        .first;
     if (mounted) setState(() => _isSaved = ids.contains(widget.deal.id));
   }
 
   Future<void> _toggleSave() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.isAnonymous) return;
-    await FirestoreService.toggleSavedDeal(user.uid, widget.deal.id, _isSaved);
+    if (!_canVote) return;
+    await getIt<FirestoreService>().toggleSavedDeal(
+      _user!.uid,
+      widget.deal.id,
+      _isSaved,
+    );
     if (mounted) setState(() => _isSaved = !_isSaved);
   }
 
+  Future<void> _vote(int value) async {
+    if (!_canVote) return;
+    await getIt<FirestoreService>().voteOnDeal(
+      _user!.uid,
+      widget.deal.id,
+      value,
+    );
+  }
+
   Future<void> _submitComment(String content) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.isAnonymous) {
+    if (_user == null || _user!.isAnonymous) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Connectez-vous pour commenter.')),
       );
@@ -59,11 +114,11 @@ class _DealDetailPageState extends State<DealDetailPage> {
       final comment = Comment(
         id: '',
         dealId: widget.deal.id,
-        author: user.displayName ?? user.email ?? 'Utilisateur',
+        author: _user!.displayName ?? _user!.email ?? 'Utilisateur',
         content: content,
         createdAt: DateTime.now(),
       );
-      await FirestoreService.addComment(comment, user.uid);
+      await getIt<FirestoreService>().addComment(comment, _user!.uid);
     } finally {
       if (mounted) setState(() => _isSubmittingComment = false);
     }
@@ -87,10 +142,18 @@ class _DealDetailPageState extends State<DealDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DealImageWidget(imageUrl: widget.deal.imageUrl),
-            DealTemperatureWidget(temperature: _temperature),
+            DealTemperatureWidget(
+              temperature: _temperature,
+              userVote: _userVote,
+              onUpvote: () => _vote(1),
+              onDownvote: () => _vote(-1),
+              canVote: _canVote,
+            ),
             DealInfoWidget(deal: widget.deal),
             StreamBuilder<List<Comment>>(
-              stream: FirestoreService.getCommentsStream(widget.deal.id),
+              stream: getIt<FirestoreService>().getCommentsStream(
+                widget.deal.id,
+              ),
               builder: (context, snapshot) {
                 final comments = snapshot.data ?? [];
                 final count = comments.length;

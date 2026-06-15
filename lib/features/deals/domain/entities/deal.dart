@@ -17,6 +17,7 @@ class Deal {
   final String categoryId;
   final bool isTrending;
   final bool isPopular;
+  final int temperature;
 
   const Deal({
     required this.id,
@@ -37,11 +38,12 @@ class Deal {
     required this.categoryId,
     this.isTrending = false,
     this.isPopular = false,
+    this.temperature = 50,
   });
 
   // Getters pour le formatage
-  String get priceLabel => '\$${price.toStringAsFixed(2)}';
-  String get originalPriceLabel => '\$${originalPrice.toStringAsFixed(2)}';
+  String get priceLabel => '${price.toStringAsFixed(2)} €';
+  String get originalPriceLabel => '${originalPrice.toStringAsFixed(2)} €';
 
   // Creates a copy of the Deal with the given fields replaced by the non-null values
   Deal copyWith({
@@ -63,6 +65,7 @@ class Deal {
     String? categoryId,
     bool? isTrending,
     bool? isPopular,
+    int? temperature,
   }) {
     return Deal(
       id: id ?? this.id,
@@ -83,6 +86,7 @@ class Deal {
       categoryId: categoryId ?? this.categoryId,
       isTrending: isTrending ?? this.isTrending,
       isPopular: isPopular ?? this.isPopular,
+      temperature: temperature ?? this.temperature,
     );
   }
 }

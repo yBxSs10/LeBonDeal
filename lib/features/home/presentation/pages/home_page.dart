@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 
-import '../../../../../core/widgets/shared/common_widgets.dart';
-import '../../../../../core/widgets/shared/lebondeal_logo.dart';
-import '../../../../../core/widgets/shared/search_bar.dart' as custom_search;
-import '../../../../features/categories/presentation/widgets/category_chip.dart';
-import '../../../deals/presentation/pages/add_deal_page.dart';
-import '../../../deals/presentation/widgets/deal_card.dart';
+import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
+import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
+import 'package:lebondeal/core/widgets/shared/search_bar.dart' as custom_search;
+import 'package:lebondeal/features/categories/presentation/widgets/category_chip.dart';
+import 'package:lebondeal/features/deals/presentation/pages/add_deal_page.dart';
+import 'package:lebondeal/features/deals/presentation/widgets/deal_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,20 +27,23 @@ class _HomePageState extends State<HomePage> {
   Set<String> _savedDealIds = {};
   StreamSubscription<Set<String>>? _savedSub;
 
-  Stream<List<Deal>> _dealsStream = FirestoreService.getAllDealsStream();
+  late Stream<List<Deal>> _dealsStream;
 
   @override
   void initState() {
     super.initState();
+    _dealsStream = getIt<FirestoreService>().getAllDealsStream();
     _listenToSavedDeals();
   }
 
   void _listenToSavedDeals() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return;
-    _savedSub = FirestoreService.getSavedDealIdsStream(user.uid).listen((ids) {
-      if (mounted) setState(() => _savedDealIds = ids);
-    });
+    _savedSub = getIt<FirestoreService>()
+        .getSavedDealIdsStream(user.uid)
+        .listen((ids) {
+          if (mounted) setState(() => _savedDealIds = ids);
+        });
   }
 
   @override
@@ -53,8 +57,10 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedCategory = alreadySelected ? null : category;
       _dealsStream = _selectedCategory != null
-          ? FirestoreService.getDealsByCategoryStream(_selectedCategory!.id)
-          : FirestoreService.getAllDealsStream();
+          ? getIt<FirestoreService>().getDealsByCategoryStream(
+              _selectedCategory!.id,
+            )
+          : getIt<FirestoreService>().getAllDealsStream();
     });
   }
 
@@ -74,12 +80,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _toggleSave(String dealId, bool isSaved) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return;
-    await FirestoreService.toggleSavedDeal(user.uid, dealId, isSaved);
+    await getIt<FirestoreService>().toggleSavedDeal(user.uid, dealId, isSaved);
   }
 
   @override
   Widget build(BuildContext context) {
-    final categories = FirestoreService.getAllCategories();
+    final categories = getIt<FirestoreService>().getAllCategories();
 
     return Scaffold(
       body: SafeArea(
@@ -182,7 +188,7 @@ class _HomePageState extends State<HomePage> {
             child: CustomErrorWidget(
               message: 'Erreur de chargement',
               onRetry: () => setState(() {
-                _dealsStream = FirestoreService.getAllDealsStream();
+                _dealsStream = getIt<FirestoreService>().getAllDealsStream();
               }),
             ),
           );

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/shared/common_widgets.dart';
 import '../../data/datasources/remote/firestore_service.dart';
 import '../../domain/entities/deal.dart';
@@ -26,7 +27,7 @@ class SavedDealsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Deals sauvegardés')),
       body: StreamBuilder<List<Deal>>(
-        stream: FirestoreService.getSavedDealsStream(user.uid),
+        stream: getIt<FirestoreService>().getSavedDealsStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingWidget();
@@ -48,8 +49,11 @@ class SavedDealsPage extends StatelessWidget {
               return DealCard(
                 deal: deal,
                 isSaved: true,
-                onSave: () =>
-                    FirestoreService.toggleSavedDeal(user.uid, deal.id, true),
+                onSave: () => getIt<FirestoreService>().toggleSavedDeal(
+                  user.uid,
+                  deal.id,
+                  true,
+                ),
               );
             },
           );

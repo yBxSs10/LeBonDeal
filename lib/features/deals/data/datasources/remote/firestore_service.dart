@@ -1,42 +1,46 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/deal.dart';
-import '../../../../categories/domain/entities/category.dart';
-import '../../../../comments/data/models/comment.dart';
+import 'package:lebondeal/features/deals/domain/entities/deal.dart';
+import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/comments/data/models/comment.dart';
 
 class FirestoreService {
-  static final _db = FirebaseFirestore.instance;
-  static final _deals = _db.collection('deals');
-  static final _comments = _db.collection('comments');
+  final FirebaseFirestore _db;
+
+  FirestoreService({FirebaseFirestore? db})
+    : _db = db ?? FirebaseFirestore.instance;
 
   // ─── Deals ──────────────────────────────────────────────────────────────────
 
-  static Stream<List<Deal>> getAllDealsStream() {
-    return _deals
+  Stream<List<Deal>> getAllDealsStream() {
+    return _db
+        .collection('deals')
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((s) => s.docs.map(_dealFromDoc).toList());
   }
 
-  static Stream<List<Deal>> getDealsByCategoryStream(String categoryId) {
-    return _deals
+  Stream<List<Deal>> getDealsByCategoryStream(String categoryId) {
+    return _db
+        .collection('deals')
         .where('categoryId', isEqualTo: categoryId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((s) => s.docs.map(_dealFromDoc).toList());
   }
 
-  static Stream<List<Deal>> getTrendingDealsStream() {
-    return _deals
+  Stream<List<Deal>> getTrendingDealsStream() {
+    return _db
+        .collection('deals')
         .where('isTrending', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((s) => s.docs.map(_dealFromDoc).toList());
   }
 
-  static Future<DocumentReference> addDeal(Deal deal) {
-    return _deals.add({
+  Future<DocumentReference> addDeal(Deal deal) {
+    return _db.collection('deals').add({
       'title': deal.title,
       'description': deal.description,
       'price': deal.price,
@@ -50,6 +54,7 @@ class FirestoreService {
       'comments': 0,
       'favorites': 0,
       'shares': 0,
+      'temperature': 50,
       'categoryId': deal.categoryId,
       'isTrending': deal.isTrending,
       'isPopular': deal.isPopular,
@@ -57,19 +62,59 @@ class FirestoreService {
     });
   }
 
+  // ─── Votes (température) ─────────────────────────────────────────────────────
+
+  /// Retourne le vote actuel de l'utilisateur pour un deal : 1, -1, ou 0.
+  Stream<int> getUserVoteStream(String userId, String dealId) {
+    return _db
+        .collection('deals')
+        .doc(dealId)
+        .collection('votes')
+        .doc(userId)
+        .snapshots()
+        .map((doc) => doc.exists ? (doc.data()?['value'] as int? ?? 0) : 0);
+  }
+
+  /// Vote sur un deal. Gère le toggle (revoter annule) et le changement de sens.
+  /// - [vote] doit être 1 (upvote) ou -1 (downvote).
+  Future<void> voteOnDeal(String userId, String dealId, int vote) async {
+    assert(vote == 1 || vote == -1);
+    final dealRef = _db.collection('deals').doc(dealId);
+    final voteRef = dealRef.collection('votes').doc(userId);
+
+    await _db.runTransaction((tx) async {
+      final voteDoc = await tx.get(voteRef);
+      final previousVote = voteDoc.exists
+          ? (voteDoc.data()?['value'] as int? ?? 0)
+          : 0;
+
+      if (previousVote == vote) {
+        // Même vote → annulation
+        tx.delete(voteRef);
+        tx.update(dealRef, {'temperature': FieldValue.increment(-vote)});
+      } else {
+        // Nouveau vote ou changement de sens
+        tx.set(voteRef, {'value': vote});
+        final delta = previousVote == 0 ? vote : vote * 2;
+        tx.update(dealRef, {'temperature': FieldValue.increment(delta)});
+      }
+    });
+  }
+
   // ─── Comments ───────────────────────────────────────────────────────────────
 
-  static Stream<List<Comment>> getCommentsStream(String dealId) {
-    return _comments
+  Stream<List<Comment>> getCommentsStream(String dealId) {
+    return _db
+        .collection('comments')
         .where('dealId', isEqualTo: dealId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((s) => s.docs.map(_commentFromDoc).toList());
   }
 
-  static Future<void> addComment(Comment comment, String authorId) async {
+  Future<void> addComment(Comment comment, String authorId) async {
     final batch = _db.batch();
-    final commentRef = _comments.doc();
+    final commentRef = _db.collection('comments').doc();
     batch.set(commentRef, {
       'dealId': comment.dealId,
       'author': comment.author,
@@ -77,7 +122,7 @@ class FirestoreService {
       'content': comment.content,
       'createdAt': FieldValue.serverTimestamp(),
     });
-    batch.update(_deals.doc(comment.dealId), {
+    batch.update(_db.collection('deals').doc(comment.dealId), {
       'comments': FieldValue.increment(1),
     });
     await batch.commit();
@@ -85,7 +130,7 @@ class FirestoreService {
 
   // ─── Favoris ────────────────────────────────────────────────────────────────
 
-  static Stream<Set<String>> getSavedDealIdsStream(String userId) {
+  Stream<Set<String>> getSavedDealIdsStream(String userId) {
     return _db.collection('users').doc(userId).snapshots().map((doc) {
       if (!doc.exists) return <String>{};
       final data = doc.data()!;
@@ -93,7 +138,7 @@ class FirestoreService {
     });
   }
 
-  static Future<void> toggleSavedDeal(
+  Future<void> toggleSavedDeal(
     String userId,
     String dealId,
     bool currentlySaved,
@@ -110,21 +155,24 @@ class FirestoreService {
     }
   }
 
-  static Stream<List<Deal>> getSavedDealsStream(String userId) {
+  Stream<List<Deal>> getSavedDealsStream(String userId) {
     return _db.collection('users').doc(userId).snapshots().asyncMap((
       userDoc,
     ) async {
       if (!userDoc.exists) return <Deal>[];
       final ids = List<String>.from(userDoc.data()?['savedDealIds'] ?? []);
       if (ids.isEmpty) return <Deal>[];
-      final snap = await _deals.where(FieldPath.documentId, whereIn: ids).get();
+      final snap = await _db
+          .collection('deals')
+          .where(FieldPath.documentId, whereIn: ids)
+          .get();
       return snap.docs.map(_dealFromDoc).toList();
     });
   }
 
   // ─── Catégories (statiques — pas besoin de Firestore) ───────────────────────
 
-  static List<Category> getAllCategories() => [
+  List<Category> getAllCategories() => [
     Category(
       id: 'high-tech',
       name: 'High-Tech',
@@ -172,7 +220,7 @@ class FirestoreService {
 
   // ─── Helpers privés ──────────────────────────────────────────────────────────
 
-  static Deal _dealFromDoc(DocumentSnapshot doc) {
+  Deal _dealFromDoc(DocumentSnapshot doc) {
     final d = doc.data() as Map<String, dynamic>;
     final createdAt =
         (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
@@ -196,10 +244,11 @@ class FirestoreService {
       categoryId: d['categoryId'] ?? '',
       isTrending: d['isTrending'] ?? false,
       isPopular: d['isPopular'] ?? false,
+      temperature: d['temperature'] ?? 50,
     );
   }
 
-  static Comment _commentFromDoc(DocumentSnapshot doc) {
+  Comment _commentFromDoc(DocumentSnapshot doc) {
     final d = doc.data() as Map<String, dynamic>;
     return Comment(
       id: doc.id,

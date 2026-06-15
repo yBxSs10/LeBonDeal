@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import 'injection.config.dart';
 import '../../features/auth/di/auth_di.dart';
+import '../../features/deals/di/deals_di.dart';
 
 final getIt = GetIt.instance;
 
@@ -17,4 +18,7 @@ void configureDependencies() {
 
   // Configurer les dépendances d'authentification
   configureAuthDependencies();
+
+  // Configurer les dépendances deals / Firestore
+  configureDealsDependencies();
 }

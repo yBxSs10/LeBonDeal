@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../categories/domain/entities/category.dart';
+import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import '../bloc/add_deal_bloc.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/price_field.dart';

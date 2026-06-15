@@ -3,8 +3,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
-import '../domain/domain.dart';
-import '../data/repositories/auth_repository_impl.dart';
+import 'package:lebondeal/features/auth/domain/repositories/auth_repository.dart';
+import 'package:lebondeal/features/auth/data/repositories/auth_repository_impl.dart';
 
 /// Configure les dépendances liées à l'authentification
 void configureAuthDependencies() {
