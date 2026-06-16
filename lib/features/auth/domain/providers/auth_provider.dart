@@ -62,6 +62,19 @@ class AuthProvider with ChangeNotifier {
     await FirebaseAuth.instance.signOut();
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      _setLoading(true);
+      _error = null;
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      _error = _getErrorMessage(e.code);
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> signInAnonymously() async {
     try {
       _setLoading(true);

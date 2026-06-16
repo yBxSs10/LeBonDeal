@@ -75,6 +75,71 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Future<void> _handleForgotPassword(AuthProvider authProvider) async {
+    final emailController = TextEditingController(
+      text: _emailController.text.trim(),
+    );
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Réinitialiser le mot de passe'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Entrez votre adresse email pour recevoir un lien de réinitialisation.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Envoyer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    final email = emailController.text.trim();
+    if (email.isEmpty) return;
+
+    try {
+      await authProvider.sendPasswordResetEmail(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Email de réinitialisation envoyé. Vérifiez votre boîte mail.',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.error ?? 'Une erreur est survenue.'),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _handleGuestLogin(AuthProvider authProvider) async {
     try {
       await authProvider.signInAnonymously();
@@ -159,7 +224,15 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24.0),
+                const SizedBox(height: 8.0),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _handleForgotPassword(authProvider),
+                    child: const Text('Mot de passe oublié ?'),
+                  ),
+                ),
+                const SizedBox(height: 8.0),
                 _buildLoginButton(authProvider),
                 const SizedBox(height: 16.0),
                 _buildGuestLoginButton(authProvider),
