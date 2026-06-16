@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 
@@ -10,21 +9,21 @@ class LoginSocialButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        _SocialButton(label: 'Google', iconData: FontAwesomeIcons.google),
+        _SocialButton(label: 'Google', brandLetter: 'G'),
         SizedBox(height: 12),
-        _SocialButton(label: 'Facebook', iconData: FontAwesomeIcons.facebookF),
+        _SocialButton(label: 'Facebook', brandLetter: 'f'),
         SizedBox(height: 12),
-        _SocialButton(label: 'Apple', iconData: FontAwesomeIcons.apple),
+        _SocialButton(label: 'Apple', brandLetter: ''),
       ],
     );
   }
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.label, required this.iconData});
+  const _SocialButton({required this.label, required this.brandLetter});
 
   final String label;
-  final IconData iconData;
+  final String brandLetter;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,14 @@ class _SocialButton extends StatelessWidget {
         onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Connexion $label à implémenter')),
         ),
-        icon: FaIcon(iconData, color: AppColors.textPrimary),
+        icon: Text(
+          brandLetter,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
         label: Text(label),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),

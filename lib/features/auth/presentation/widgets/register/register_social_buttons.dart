@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RegisterSocialButtons extends StatelessWidget {
   const RegisterSocialButtons({
@@ -16,13 +15,13 @@ class RegisterSocialButtons extends StatelessWidget {
     return Column(
       children: [
         _SocialButton(
-          icon: FontAwesomeIcons.google,
+          brandLetter: 'G',
           label: 'Continuer avec Google',
           onPressed: onGooglePressed,
         ),
         const SizedBox(height: 12),
         _SocialButton(
-          icon: FontAwesomeIcons.facebookF,
+          brandLetter: 'f',
           label: 'Continuer avec Facebook',
           onPressed: onFacebookPressed,
         ),
@@ -33,12 +32,12 @@ class RegisterSocialButtons extends StatelessWidget {
 
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
-    required this.icon,
+    required this.brandLetter,
     required this.label,
     required this.onPressed,
   });
 
-  final IconData icon;
+  final String brandLetter;
   final String label;
   final VoidCallback onPressed;
 
@@ -46,7 +45,14 @@ class _SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: FaIcon(icon, color: Colors.grey[700]),
+      icon: Text(
+        brandLetter,
+        style: TextStyle(
+          color: Colors.grey[700],
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
       label: Text(label, style: const TextStyle(color: Colors.black87)),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
