@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../comments/data/models/comment.dart';
@@ -138,7 +139,18 @@ class _DealDetailPageState extends State<DealDetailPage> {
             icon: Icon(_isSaved ? Icons.favorite : Icons.favorite_border),
             onPressed: _toggleSave,
           ),
-          IconButton(icon: const Icon(Icons.share), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              SharePlus.instance.share(
+                ShareParams(
+                  title: widget.deal.title,
+                  text:
+                      '${widget.deal.title} — ${widget.deal.priceLabel} chez ${widget.deal.storeName}\n\n${widget.deal.description}',
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
