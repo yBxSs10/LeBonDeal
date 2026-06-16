@@ -3,6 +3,7 @@
 > Application mobile communautaire de partage de bons plans, développée avec Flutter et Firebase
 
 ## 📋 Table des matières
+- [🖥️ Environnement de développement](#-environnement-de-développement)
 - [🚀 Installation et lancement](#-installation-et-lancement)
 - [📱 Lancement sur émulateur](#-lancement-sur-émulateur)
 - [🧪 Tests unitaires](#-tests-unitaires)
@@ -12,6 +13,47 @@
 - [🧭 Choix technologiques](#-choix-technologiques)
 - [📝 Rapport de bogue](#-rapport-de-bogue)
 - [📋 Changelog](CHANGELOG.md)
+
+---
+
+## 🖥️ Environnement de développement
+
+### Outils et versions de référence
+
+| Outil | Rôle | Version |
+|---|---|---|
+| Flutter SDK | Compilateur + framework UI | 3.x stable (CI : 3.44.2) |
+| Dart SDK | Langage / compilateur | 3.x (inclus avec Flutter) |
+| Android SDK | Compilateur cible Android | API 34 |
+| Git | Gestion de sources | 2.x |
+| GitHub | Hébergement dépôt + CI/CD | — |
+| GitHub Actions | Serveur d'intégration continue | ubuntu-latest |
+| Firebase CLI | Déploiement des règles Firestore | 13.x |
+| VS Code | Éditeur de code | Extensions : Flutter, Dart |
+| Android Studio | Émulateur Android (AVD) | Hedgehog+ |
+
+### Séquences de déploiement
+
+```
+Développement local
+  └── git push → GitHub Actions déclenché automatiquement
+        ├── Job "test"  : format → lint → tests unitaires → couverture → monitoring check
+        └── Job "build" : build APK debug → upload artefact (30 jours)
+                                    ↓
+                        APK téléchargeable sur GitHub Actions
+                        (prototype fonctionnel, testable sans store)
+```
+
+### Critères de qualité et performance
+
+| Critère | Outil | Seuil |
+|---|---|---|
+| Formatage | `dart format` | Bloquant si écart |
+| Analyse statique | `flutter analyze` | Bloquant si warning fatal |
+| Tests unitaires | `flutter test` | 20/20 obligatoires |
+| Couverture de code | lcov | Rapport généré à chaque CI |
+| Crashs production | Firebase Crashlytics | Alerte automatique |
+| Performance réseau | Firebase Performance | Suivi des temps de réponse |
 
 ---
 
