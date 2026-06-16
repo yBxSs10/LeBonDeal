@@ -21,6 +21,14 @@ class FirestoreService {
         .map((s) => s.docs.map(_dealFromDoc).toList());
   }
 
+  Stream<Deal?> getDealStream(String dealId) {
+    return _db
+        .collection('deals')
+        .doc(dealId)
+        .snapshots()
+        .map((doc) => doc.exists ? _dealFromDoc(doc) : null);
+  }
+
   Stream<List<Deal>> getDealsByCategoryStream(String categoryId) {
     return _db
         .collection('deals')

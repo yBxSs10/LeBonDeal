@@ -30,8 +30,11 @@ class _DealDetailPageState extends State<DealDetailPage> {
   // ── Streams vote ────────────────────────────────────────────────────────────
   StreamSubscription<int>? _temperatureSub;
   StreamSubscription<int>? _userVoteSub;
+  StreamSubscription<Deal?>? _dealSub;
   int _temperature = 50;
   int _userVote = 0;
+  int _favorites = 0;
+  int _shares = 0;
 
   User? get _user => FirebaseAuth.instance.currentUser;
   bool get _canVote => _user != null && !_user!.isAnonymous;
@@ -47,22 +50,23 @@ class _DealDetailPageState extends State<DealDetailPage> {
   void dispose() {
     _temperatureSub?.cancel();
     _userVoteSub?.cancel();
+    _dealSub?.cancel();
     super.dispose();
   }
 
   void _subscribeToTemperature() {
-    // Stream sur le deal pour la température en temps réel
-    _temperatureSub = getIt<FirestoreService>()
-        .getAllDealsStream()
-        .map((deals) {
-          final match = deals.where((d) => d.id == widget.deal.id);
-          return match.isNotEmpty
-              ? match.first.temperature
-              : widget.deal.temperature;
-        })
-        .listen((t) {
-          if (mounted) setState(() => _temperature = t);
+    // Stream direct sur le deal — température + favoris + partages en temps réel
+    _dealSub = getIt<FirestoreService>().getDealStream(widget.deal.id).listen((
+      deal,
+    ) {
+      if (mounted && deal != null) {
+        setState(() {
+          _temperature = deal.temperature;
+          _favorites = deal.favorites;
+          _shares = deal.shares;
         });
+      }
+    });
 
     // Stream sur le vote de l'utilisateur courant
     if (_canVote) {
@@ -161,8 +165,8 @@ class _DealDetailPageState extends State<DealDetailPage> {
                   children: [
                     DealStatsWidget(
                       commentCount: count,
-                      favorites: widget.deal.favorites,
-                      shares: widget.deal.shares,
+                      favorites: _favorites,
+                      shares: _shares,
                     ),
                     DealDescriptionWidget(deal: widget.deal),
                     CommentsSectionWidget(
