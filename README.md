@@ -9,6 +9,9 @@
 - [⚙️ CI/CD](#️-cicd)
 - [📦 Fichiers de configuration](#-fichiers-de-configuration)
 - [📚 Fonctionnalités](#-fonctionnalités)
+- [🧭 Choix technologiques](#-choix-technologiques)
+- [📝 Rapport de bogue](#-rapport-de-bogue)
+- [📋 Changelog](CHANGELOG.md)
 
 ---
 
@@ -241,3 +244,52 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 - **Android Studio** pour l'émulation Android
 - **Firebase Console** pour la gestion des données et des règles
 - **GitHub Actions** pour la CI/CD (déjà configuré)
+
+---
+
+## 🧭 Choix technologiques
+
+### Flutter / Dart
+
+Flutter a été retenu face à React Native et au développement natif (Kotlin + Swift) pour trois raisons principales :
+
+- **Un seul code source** pour Android et iOS, ce qui réduit de moitié le coût de maintenance sur une équipe réduite
+- **Performances proches du natif** grâce au moteur de rendu Skia/Impeller — adapté à un feed de deals avec lazy loading
+- **Écosystème mature** : pub.dev, Flutter Semantics (accessibilité WCAG 2.1), support Firebase officiel
+
+### Firebase (Firestore, Auth, FCM, Crashlytics, Performance)
+
+Firebase a été préféré à un backend custom (Node.js + PostgreSQL) ou à Supabase :
+
+- **Serverless** : pas de serveur à provisionner, scalabilité automatique — pertinent pour un MVP avec pic de charge imprévisible
+- **Firestore temps réel** : les streams de deals et commentaires ne nécessitent pas de polling
+- **Firebase Auth** : gestion des sessions et des rôles sans écrire de couche d'authentification
+- **Crashlytics + Performance** : supervision intégrée sans infrastructure de monitoring séparée
+- **Coût** : tier gratuit suffisant pour la phase MVP (50 000 lectures/jour)
+
+Limite identifiée : cold start des Cloud Functions (~1-2s) acceptable en phase MVP, à surveiller en phase 2.
+
+### Clean Architecture (domain / data / presentation)
+
+Séparation stricte en trois couches pour garantir la testabilité et la maintenabilité :
+
+- **Domain** : entités et use cases purs Dart, sans dépendance Firebase — testables unitairement avec mockito
+- **Data** : implémentations Firebase (repositories, Firestore service) isolées derrière des interfaces
+- **Presentation** : widgets et BLoC, sans logique métier
+
+### GetIt / Injectable
+
+Injection de dépendances par service locator plutôt que par Provider seul :
+
+- Les repositories sont enregistrés comme singletons — une seule instance Firestore par session
+- L'injection facilite le remplacement des dépendances réelles par des mocks dans les tests
+
+---
+
+## 📝 Rapport de bogue
+
+Les anomalies détectées en recette sont tracées via le template GitHub Issue intégré au dépôt.
+
+Chaque rapport couvre : référence recette (AUTH-XXX, DEAL-XXX, SEC-XXX), sévérité, priorité, étapes de reproduction, cause identifiée, plan de correction et critère de validation.
+
+→ [Créer un rapport de bogue](.github/ISSUE_TEMPLATE/bug_report.md)
