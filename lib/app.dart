@@ -3,11 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/navigation/main_navigation.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 
-class LebonDealApp extends StatelessWidget {
+class LebonDealApp extends StatefulWidget {
   const LebonDealApp({super.key});
+
+  @override
+  State<LebonDealApp> createState() => _LebonDealAppState();
+}
+
+class _LebonDealAppState extends State<LebonDealApp> {
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = _scaffoldMessengerKey.currentState;
+      if (state != null) {
+        NotificationService.instance.setScaffoldMessenger(state);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +34,7 @@ class LebonDealApp extends StatelessWidget {
       title: 'LebonDeal',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       home: const _AuthGate(),
     );
   }
