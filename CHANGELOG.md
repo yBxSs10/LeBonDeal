@@ -19,9 +19,9 @@ Format : [version] — date — description
 - Accessibilité WCAG 2.1 AA — labels Semantics Flutter
 - Firebase Crashlytics — remontée automatique des crashs
 - Firebase Performance Monitoring — suivi des temps de réponse
-- Pipeline CI/CD GitHub Actions — format, lint, 20 tests unitaires, build APK
+- Pipeline CI/CD GitHub Actions — format, lint, 47 tests unitaires, build APK
 - Template de rapport de bogue GitHub Issue
-- 20 tests unitaires : AUTH-001→005, DEAL-001→009, SEC-001→005
+- 47 tests unitaires : USER-001→007, AUTH-001→005, AUTH-P01→P06, DEAL-001→018, BLOC-001→005, SEC-001→005
 
 ### Modifié
 - Migration de la couche data : mock DataService → streams Firestore réels

@@ -125,7 +125,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **20 tests unitaires** couvrant l'authentification, les deals et la sécurité.
+Le projet contient **47 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -141,11 +141,16 @@ flutter test --coverage
 ### Résultats attendus
 
 ```
-✅ DEAL-001 à DEAL-009   — Entité Deal + persistance Firestore
+✅ USER-001 à USER-007   — Entité UserEntity (sérialisation, égalité)
 ✅ AUTH-001 à AUTH-005   — Repository d'authentification Firebase
+✅ AUTH-P01 à AUTH-P06   — Mapping des codes d'erreur Firebase
+✅ DEAL-001 à DEAL-005   — Entité Deal (copyWith, formatage)
+✅ DEAL-006 à DEAL-009   — Persistance Firestore + garde utilisateur anonyme
+✅ DEAL-010 à DEAL-018   — FirestoreService (vote, favoris, commentaires, streams)
+✅ BLOC-001 à BLOC-005   — AddDealBloc (état, catégories, notifications)
 ✅ SEC-001  à SEC-005    — Validation et règles de sécurité
 
-+20: All tests passed!
++47: All tests passed!
 ```
 
 ### Fichiers de tests
@@ -153,10 +158,14 @@ flutter test --coverage
 ```
 test/
 ├── features/auth/
-│   └── auth_repository_test.dart      # AUTH-001 à AUTH-005
+│   ├── user_entity_test.dart          # USER-001 à USER-007
+│   ├── auth_repository_test.dart      # AUTH-001 à AUTH-005
+│   └── auth_provider_test.dart        # AUTH-P01 à AUTH-P06
 ├── features/deals/
 │   ├── deal_entity_test.dart          # DEAL-001 à DEAL-005
-│   └── create_deal_usecase_test.dart  # DEAL-006 à DEAL-009
+│   ├── create_deal_usecase_test.dart  # DEAL-006 à DEAL-009
+│   ├── firestore_service_test.dart    # DEAL-010 à DEAL-018
+│   └── add_deal_bloc_test.dart        # BLOC-001 à BLOC-005
 └── features/security/
     └── deal_validation_test.dart      # SEC-001 à SEC-005
 ```
