@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'core/di/injection.dart';
-import 'core/services/notification_service.dart';
 import 'features/auth/domain/providers/auth_provider.dart';
 import 'firebase_options.dart';
 
@@ -34,7 +33,6 @@ Future<void> main() async {
       return true;
     };
     await FirebasePerformance.instance.setPerformanceCollectionEnabled(true);
-    await NotificationService.instance.initialize();
   }
 
   runApp(
