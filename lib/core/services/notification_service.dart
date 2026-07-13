@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // Handler background — doit être une fonction top-level
@@ -15,6 +16,13 @@ class NotificationService {
   final _messaging = FirebaseMessaging.instance;
 
   Future<void> initialize() async {
+    // FCM non supporté sur Windows/Linux/macOS desktop
+    if (defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS) {
+      debugPrint('FCM: plateforme non supportée ($defaultTargetPlatform)');
+      return;
+    }
+
     // 1. Enregistrer le handler background
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
