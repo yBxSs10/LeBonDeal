@@ -39,24 +39,31 @@ class ProfilePage extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey[300],
-                    child: user.photoURL != null
-                        ? ClipOval(
-                            child: Image.network(
-                              user.photoURL!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => Icon(
-                                Icons.person,
-                                size: 50,
-                                color: Colors.grey[600],
+                  Semantics(
+                    label: 'Photo de profil de $displayName',
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[300],
+                      child: user.photoURL != null
+                          ? ClipOval(
+                              child: Image.network(
+                                user.photoURL!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.grey[600],
+                                ),
                               ),
+                            )
+                          : Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.grey[600],
                             ),
-                          )
-                        : Icon(Icons.person, size: 50, color: Colors.grey[600]),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -73,22 +80,25 @@ class ProfilePage extends StatelessWidget {
                   ),
                   if (user.emailVerified) ...[
                     const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.green),
-                      ),
-                      child: const Text(
-                        'Compte vérifié',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                    Semantics(
+                      label: 'Compte vérifié',
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.green),
+                        ),
+                        child: const Text(
+                          'Compte vérifié',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),

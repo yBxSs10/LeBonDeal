@@ -5,7 +5,9 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const Center(
+      child: CircularProgressIndicator(semanticsLabel: 'Chargement en cours'),
+    );
   }
 }
 
@@ -29,7 +31,7 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: Colors.grey),
+            ExcludeSemantics(child: Icon(icon, size: 64, color: Colors.grey)),
             const SizedBox(height: 16),
             Text(
               message,
@@ -58,7 +60,9 @@ class CustomErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error, size: 64, color: Colors.red),
+            const ExcludeSemantics(
+              child: Icon(Icons.error, size: 64, color: Colors.red),
+            ),
             const SizedBox(height: 16),
             Text(
               message,
