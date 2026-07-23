@@ -4,9 +4,11 @@
 // Stratégie : on injecte un MockFirebaseAuth pour ne pas dépendre
 // du réseau Firebase — les tests sont déterministes et rapides.
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lebondeal/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 
 void main() {
   group('AuthRepository —', () {
@@ -68,6 +70,40 @@ void main() {
           expect(user.email, 'nouveau@lebondeal.fr');
           expect(user.id, isNotEmpty);
         });
+      },
+    );
+
+    // -------------------------------------------------------
+    // AUTH-006 : Inscription crée le profil Firestore users/{uid}
+    // -------------------------------------------------------
+    test(
+      'AUTH-006 : createUser crée users/{uid} avec email, displayName et role=user',
+      () async {
+        // ARRANGE
+        final mockAuth = MockFirebaseAuth();
+        final fakeFirestore = FakeFirebaseFirestore();
+        final repo = AuthRepositoryImpl(
+          firebaseAuth: mockAuth,
+          firestoreService: FirestoreService(db: fakeFirestore),
+        );
+
+        // ACT
+        final result = await repo.createUserWithEmailAndPassword(
+          email: 'profil@lebondeal.fr',
+          password: 'securePass456',
+          displayName: 'Profil Test',
+        );
+
+        // ASSERT
+        final uid = result.fold(
+          (_) => fail('Ne devrait pas échouer'),
+          (u) => u.id,
+        );
+        final doc = await fakeFirestore.collection('users').doc(uid).get();
+        expect(doc.exists, true);
+        expect(doc.data()?['email'], 'profil@lebondeal.fr');
+        expect(doc.data()?['displayName'], 'Profil Test');
+        expect(doc.data()?['role'], 'user');
       },
     );
 

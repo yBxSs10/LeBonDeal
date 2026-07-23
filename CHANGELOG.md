@@ -11,6 +11,7 @@ Format : [version] — date — description
 - Notifications push FCM (`firebase_messaging`) — permission, token, handlers foreground/background/terminated, guard non-mobile
 - Ciblage des notifications par catégorie : écran "Notifications par catégorie" (profil), abonnement/désabonnement aux topics FCM par catégorie, persistance `users/{uid}.followedCategoryIds`
 - Cloud Function `notifyNewDealInCategory` (`functions/index.js`) — publie sur le topic de la catégorie à chaque création de deal (non déployée — code testé via émulateurs Firestore + Functions)
+- Signalement d'un deal (bouton "Signaler", 4 motifs) et écran de modération (`ModerationPage` : liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin`
 - Traçabilité fonctionnalités ↔ user stories MoSCoW (C1.4.1) dans le README
 
 ### Corrigé
@@ -24,6 +25,7 @@ Format : [version] — date — description
 - `firestore.rules` : la mise à jour d'un deal revalide désormais `price` (auparavant seule la création vérifiait `price > 0`, un auteur pouvait ensuite passer son deal à 0€)
 - `firestore.rules` + `firestore_service.dart` : anti-spam à la publication — un deal est rejeté s'il est publié moins de 30s après le précédent du même auteur (`users/{uid}.lastDealPublishedAt`, écrit dans le même batch que la création du deal)
 - Les 4 correctifs vérifiés par un script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions passées), puis déployés en production (`firebase deploy --only firestore:rules`) — cf. le tableau de traçabilité C2.3.1
+- Inscription (`register_page.dart` → `AuthRepositoryImpl.createUserWithEmailAndPassword`) ne créait jamais le document `users/{uid}` (email, displayName, role) attendu par `firestore.rules` — les écritures ultérieures (favoris, catégories suivies) échouaient silencieusement pour tout nouveau compte, faute de document existant respectant la règle `create`. Écriture ajoutée, best-effort (ne bloque pas l'inscription si elle échoue), testée (AUTH-006)
 
 ### Documenté
 - Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)

@@ -133,7 +133,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **49 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
+Le projet contient **50 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -151,6 +151,7 @@ flutter test --coverage
 ```
 ✅ USER-001 à USER-007   — Entité UserEntity (sérialisation, égalité)
 ✅ AUTH-001 à AUTH-005   — Repository d'authentification Firebase
+✅ AUTH-006             — Création du profil Firestore (email, displayName, role) à l'inscription
 ✅ AUTH-P01 à AUTH-P06   — Mapping des codes d'erreur Firebase
 ✅ DEAL-001 à DEAL-005   — Entité Deal (copyWith, formatage)
 ✅ DEAL-006 à DEAL-009   — Persistance Firestore + garde utilisateur anonyme
@@ -159,7 +160,7 @@ flutter test --coverage
 ✅ BLOC-001 à BLOC-005   — AddDealBloc (état, catégories, notifications)
 ✅ SEC-001  à SEC-005    — Validation et règles de sécurité
 
-+49: All tests passed!
++50: All tests passed!
 ```
 
 ### Fichiers de tests
@@ -168,7 +169,7 @@ flutter test --coverage
 test/
 ├── features/auth/
 │   ├── user_entity_test.dart          # USER-001 à USER-007
-│   ├── auth_repository_test.dart      # AUTH-001 à AUTH-005
+│   ├── auth_repository_test.dart      # AUTH-001 à AUTH-006
 │   └── auth_provider_test.dart        # AUTH-P01 à AUTH-P06
 ├── features/deals/
 │   ├── deal_entity_test.dart          # DEAL-001 à DEAL-005, DEAL-019 à DEAL-020
@@ -185,7 +186,7 @@ test/
 
 ### Protocole de branches
 
-Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 49 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 50 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
 ```
 Développement local
@@ -268,6 +269,8 @@ firebase deploy --only firestore:rules
 - **Favoris** — sauvegarde et retrait des deals
 - **Profil** — page utilisateur avec informations du compte
 - **Commentaires** — section de commentaires par deal
+- **Signalement** — bouton "Signaler" sur la fiche deal (4 motifs), masqué sur son propre deal
+- **Modération** — écran dédié (signalements en attente/traités, suppression du deal signalé) pour les rôles `moderator`/`admin`
 - **Navigation** — barre de navigation : Accueil, Tendances, Sauvegardés, Profil
 
 ### 🛡️ Sécurité
@@ -318,15 +321,15 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Recherche + filtres | MUST | Je veux filtrer les deals par catégorie, prix et marchand | ⚠️ Partiel | Recherche texte (titre/marchand) + filtre catégorie dans `home_page.dart` ; filtre par tranche de prix non implémenté |
 | Profils utilisateurs | MUST | Je veux consulter mon profil et mes deals postés | ✅ | `profile/presentation/pages/profile_page.dart` |
 | Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ⚠️ Code complet, déploiement en attente | Transport FCM validé en conditions réelles (permission + token + réception, testé sur émulateur Android). Ciblage par catégorie implémenté : écran "Notifications par catégorie" (`profile_page.dart`) → `FirestoreService.toggleFollowedCategory` (persistance `users/{uid}.followedCategoryIds`) → `NotificationService.subscribeToCategory` (topic `category_<id>`), testé de bout en bout sur émulateur (toggle → écriture Firestore → abonnement FCM confirmés en log). Cloud Function `notifyNewDealInCategory` (`functions/index.js`) publie sur le topic à la création d'un deal — validée via l'émulateur Firebase (Firestore + Functions), **reste à déployer en production** (`firebase deploy --only functions`) |
-| Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ⚠️ Partiel | Collection `reports` + règles Firestore dédiées ; pas d'écran de signalement côté UI |
-| Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ❌ Non implémenté | Rôle `moderator` géré côté règles Firestore, aucun écran de modération |
+| Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ✅ | Bouton "Signaler" sur la fiche deal (masqué sur son propre deal), 4 motifs, testé de bout en bout sur émulateur — `report_dialog.dart`, `FirestoreService.createReport` |
+| Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ✅ | Écran `ModerationPage` (liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin` uniquement (`getUserRoleStream`) — attribution du rôle toujours manuelle (Firebase Console), par choix de sécurité |
 | Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ⚠️ Partiel | Limite de 500 caractères sur les commentaires (`firestore.rules`) ; pas de détection algorithmique |
 | Maquettes UI/UX | COULD | Je veux une interface intuitive et agréable | ✅ | Thème Material 3 (`app_theme.dart`), sémantique WCAG 2.1 AA |
-| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 49 tests unitaires (recette initiale visait un socle plus restreint) |
+| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 50 tests unitaires (recette initiale visait un socle plus restreint) |
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 
-**Bilan** : 5/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix), 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie) ; les SHOULD (signalement, modération, anti-spam) ont leur modèle de données et leurs règles de sécurité posés côté Firestore mais pas d'interface ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+**Bilan** : 5/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix), 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie) ; 2/3 SHOULD pleinement couverts (signalement, modération) et testés de bout en bout, 1/3 partiel (détection de spam limitée à une contrainte de longueur) ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
 
 Le ciblage des notifications par catégorie est entièrement codé et testé (client + Cloud Function via émulateurs) mais nécessite un `firebase deploy --only functions` pour être actif en production — cette étape n'a pas été effectuée pour ne pas modifier le projet Firebase partagé sans validation explicite.
 

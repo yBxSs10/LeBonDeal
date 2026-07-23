@@ -14,6 +14,7 @@ import '../widgets/deal_info_widget.dart';
 import '../widgets/deal_stats_widget.dart';
 import '../widgets/deal_description_widget.dart';
 import '../widgets/comments_section_widget.dart';
+import 'package:lebondeal/features/reports/presentation/widgets/report_dialog.dart';
 
 class DealDetailPage extends StatefulWidget {
   const DealDetailPage({super.key, required this.deal});
@@ -151,6 +152,16 @@ class _DealDetailPageState extends State<DealDetailPage> {
               );
             },
           ),
+          if (_user != null && _user!.uid != widget.deal.authorId)
+            IconButton(
+              icon: const Icon(Icons.flag_outlined),
+              tooltip: 'Signaler ce deal',
+              onPressed: () => showReportDealDialog(
+                context,
+                dealId: widget.deal.id,
+                dealTitle: widget.deal.title,
+              ),
+            ),
         ],
       ),
       body: SingleChildScrollView(

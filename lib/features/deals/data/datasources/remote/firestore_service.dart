@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
 import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import 'package:lebondeal/features/comments/data/models/comment.dart';
+import 'package:lebondeal/features/reports/data/models/report.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db;
@@ -80,6 +81,11 @@ class FirestoreService {
 
     await batch.commit();
     return dealRef;
+  }
+
+  /// Supprime un deal — réservé à l'auteur ou un modérateur (firestore.rules).
+  Future<void> deleteDeal(String dealId) {
+    return _db.collection('deals').doc(dealId).delete();
   }
 
   // ─── Votes (température) ─────────────────────────────────────────────────────
@@ -190,6 +196,34 @@ class FirestoreService {
     });
   }
 
+  // ─── Rôle utilisateur ───────────────────────────────────────────────────────
+
+  /// Crée le profil Firestore d'un utilisateur à l'inscription — requis par
+  /// firestore.rules (allow create exige email, displayName et role='user').
+  /// Sans cet appel, aucune écriture ultérieure sur users/{uid} (favoris,
+  /// catégories suivies) ne peut créer le document et échoue silencieusement.
+  Future<void> createUserProfile({
+    required String uid,
+    required String email,
+    required String displayName,
+  }) {
+    return _db.collection('users').doc(uid).set({
+      'email': email,
+      'displayName': displayName,
+      'role': 'user',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Sert uniquement à décider l'affichage de l'entrée "Modération" côté UI —
+  /// l'accès réel aux signalements reste imposé par firestore.rules (isModerator()).
+  Stream<String?> getUserRoleStream(String userId) {
+    return _db.collection('users').doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return doc.data()?['role'] as String?;
+    });
+  }
+
   // ─── Notifications par catégorie ───────────────────────────────────────────
 
   Stream<Set<String>> getFollowedCategoryIdsStream(String userId) {
@@ -265,6 +299,43 @@ class FirestoreService {
     ),
   ];
 
+  // ─── Signalements (reports) ────────────────────────────────────────────────
+
+  Future<void> createReport({
+    required String targetId,
+    required String targetType,
+    required String targetTitle,
+    required String reason,
+    required String authorId,
+  }) {
+    return _db.collection('reports').add({
+      'targetId': targetId,
+      'targetType': targetType,
+      'targetTitle': targetTitle,
+      'reason': reason,
+      'authorId': authorId,
+      'status': 'pending',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Tous les signalements, triés du plus récent au plus ancien — filtrage
+  /// par statut fait côté client pour ne pas dépendre d'un index composite
+  /// supplémentaire (status + createdAt) non requis par ailleurs.
+  Stream<List<Report>> getReportsStream() {
+    return _db
+        .collection('reports')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((s) => s.docs.map(_reportFromDoc).toList());
+  }
+
+  Future<void> resolveReport(String reportId) {
+    return _db.collection('reports').doc(reportId).update({
+      'status': 'resolved',
+    });
+  }
+
   // ─── Helpers privés ──────────────────────────────────────────────────────────
 
   Deal _dealFromDoc(DocumentSnapshot doc) {
@@ -302,6 +373,20 @@ class FirestoreService {
       dealId: d['dealId'] ?? '',
       author: d['author'] ?? '',
       content: d['content'] ?? '',
+      createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    );
+  }
+
+  Report _reportFromDoc(DocumentSnapshot doc) {
+    final d = doc.data() as Map<String, dynamic>;
+    return Report(
+      id: doc.id,
+      targetId: d['targetId'] ?? '',
+      targetType: d['targetType'] ?? '',
+      targetTitle: d['targetTitle'] ?? '',
+      reason: d['reason'] ?? '',
+      authorId: d['authorId'] ?? '',
+      status: d['status'] ?? 'pending',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }

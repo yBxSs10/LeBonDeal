@@ -6,6 +6,7 @@ import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
 import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/reports/presentation/pages/moderation_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -150,6 +151,25 @@ class ProfilePage extends StatelessWidget {
                   Text('Application de partage de bons plans et deals.'),
                 ],
               ),
+            ),
+            StreamBuilder<String?>(
+              stream: getIt<FirestoreService>().getUserRoleStream(user.uid),
+              builder: (context, snapshot) {
+                final role = snapshot.data;
+                if (role != 'moderator' && role != 'admin') {
+                  return const SizedBox.shrink();
+                }
+                return ListTile(
+                  leading: const Icon(Icons.shield_outlined),
+                  title: const Text('Modération'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ModerationPage(),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 32),
             ListTile(

@@ -2,12 +2,21 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:lebondeal/features/auth/domain/entities/user_entity.dart';
 import 'package:lebondeal/features/auth/domain/repositories/auth_repository.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  // Optionnel et non résolu au constructeur (contrairement à _firebaseAuth) :
+  // FirestoreService() accède à FirebaseFirestore.instance dès sa création,
+  // ce qui casserait les tests (AuthRepositoryImpl construit sans Firebase
+  // initialisé) si on l'évaluait ici plutôt qu'à l'usage.
+  final FirestoreService? _firestoreService;
 
-  AuthRepositoryImpl({firebase_auth.FirebaseAuth? firebaseAuth})
-    : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+  AuthRepositoryImpl({
+    firebase_auth.FirebaseAuth? firebaseAuth,
+    FirestoreService? firestoreService,
+  }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
+       _firestoreService = firestoreService;
 
   @override
   Stream<UserEntity?> get authStateChanges {
@@ -54,7 +63,21 @@ class AuthRepositoryImpl implements AuthRepository {
       await userCredential.user?.updateDisplayName(displayName);
       await userCredential.user?.reload();
 
-      return Right((await _firebaseAuth.currentUser)!.toUserEntity());
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        try {
+          await (_firestoreService ?? FirestoreService()).createUserProfile(
+            uid: user.uid,
+            email: email,
+            displayName: displayName,
+          );
+        } catch (_) {
+          // Best-effort : le compte Firebase Auth est déjà créé, on ne fait
+          // pas échouer l'inscription si l'écriture Firestore échoue.
+        }
+      }
+
+      return Right(user!.toUserEntity());
     } on firebase_auth.FirebaseAuthException catch (e) {
       return Left(_mapAuthExceptionToMessage(e));
     } catch (e) {
