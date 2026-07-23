@@ -17,8 +17,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     // FCM non supporté sur Windows/Linux/macOS desktop
-    if (defaultTargetPlatform != TargetPlatform.android &&
-        defaultTargetPlatform != TargetPlatform.iOS) {
+    if (!_isMobilePlatform) {
       debugPrint('FCM: plateforme non supportée ($defaultTargetPlatform)');
       return;
     }
@@ -56,6 +55,41 @@ class NotificationService {
     final initial = await _messaging.getInitialMessage();
     if (initial != null) {
       debugPrint('FCM opened from terminated: ${initial.notification?.title}');
+    }
+  }
+
+  // ─── Abonnement par catégorie ──────────────────────────────────────────────
+  // Chaque catégorie a un topic FCM dédié : la Cloud Function
+  // `notifyNewDealInCategory` (functions/index.js) publie dessus à chaque
+  // création de deal. S'abonner ici ne fait qu'enregistrer l'appareil auprès
+  // de FCM — la liste des catégories suivies par l'utilisateur est persistée
+  // côté Firestore (FirestoreService.toggleFollowedCategory).
+
+  String _topicForCategory(String categoryId) => 'category_$categoryId';
+
+  bool get _isMobilePlatform =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+
+  Future<void> subscribeToCategory(String categoryId) async {
+    if (!_isMobilePlatform) return;
+    await _messaging.subscribeToTopic(_topicForCategory(categoryId));
+    debugPrint('FCM: abonné à ${_topicForCategory(categoryId)}');
+  }
+
+  Future<void> unsubscribeFromCategory(String categoryId) async {
+    if (!_isMobilePlatform) return;
+    await _messaging.unsubscribeFromTopic(_topicForCategory(categoryId));
+    debugPrint('FCM: désabonné de ${_topicForCategory(categoryId)}');
+  }
+
+  /// Réabonne l'appareil à toutes les catégories suivies — à appeler après
+  /// connexion, car les abonnements aux topics sont propres à l'installation
+  /// (ils ne survivent pas à une réinstallation ou un nouvel appareil).
+  Future<void> syncFollowedCategories(Iterable<String> categoryIds) async {
+    if (!_isMobilePlatform) return;
+    for (final id in categoryIds) {
+      await subscribeToCategory(id);
     }
   }
 

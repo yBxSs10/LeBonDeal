@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/core/services/notification_service.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
@@ -17,11 +20,28 @@ class AuthProvider with ChangeNotifier {
   Future<void> _initAuth() async {
     _user = FirebaseAuth.instance.currentUser;
     notifyListeners();
+    if (_user != null) _syncNotificationSubscriptions(_user!.uid);
 
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
+      if (user != null) _syncNotificationSubscriptions(user.uid);
     });
+  }
+
+  // Réabonne l'appareil aux topics FCM des catégories suivies par
+  // l'utilisateur — nécessaire car les abonnements aux topics sont propres à
+  // l'installation et ne survivent pas à une réinstallation ou un nouvel
+  // appareil. Best-effort : ne doit jamais bloquer le flux d'authentification.
+  Future<void> _syncNotificationSubscriptions(String userId) async {
+    try {
+      final categoryIds = await getIt<FirestoreService>()
+          .getFollowedCategoryIdsStream(userId)
+          .first;
+      await NotificationService.instance.syncFollowedCategories(categoryIds);
+    } catch (e) {
+      debugPrint('FCM: échec de la resynchronisation des abonnements — $e');
+    }
   }
 
   Future<void> signIn(String email, String password) async {

@@ -9,6 +9,8 @@ Format : [version] — date — description
 
 ### Ajouté
 - Notifications push FCM (`firebase_messaging`) — permission, token, handlers foreground/background/terminated, guard non-mobile
+- Ciblage des notifications par catégorie : écran "Notifications par catégorie" (profil), abonnement/désabonnement aux topics FCM par catégorie, persistance `users/{uid}.followedCategoryIds`
+- Cloud Function `notifyNewDealInCategory` (`functions/index.js`) — publie sur le topic de la catégorie à chaque création de deal (non déployée — code testé via émulateurs Firestore + Functions)
 - Traçabilité fonctionnalités ↔ user stories MoSCoW (C1.4.1) dans le README
 
 ### Corrigé

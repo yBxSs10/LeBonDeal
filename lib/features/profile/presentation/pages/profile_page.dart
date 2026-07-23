@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
+import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/core/services/notification_service.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
+import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -107,6 +111,10 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
+            _CategoryNotificationSettings(userId: user.uid),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
             const Text(
               'Paramètres',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -207,6 +215,82 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Abonnement aux notifications push (FCM) par catégorie de deal.
+/// Persiste la préférence sur `users/{uid}.followedCategoryIds` (Firestore)
+/// et met à jour l'abonnement au topic FCM correspondant en conséquence.
+class _CategoryNotificationSettings extends StatefulWidget {
+  final String userId;
+
+  const _CategoryNotificationSettings({required this.userId});
+
+  @override
+  State<_CategoryNotificationSettings> createState() =>
+      _CategoryNotificationSettingsState();
+}
+
+class _CategoryNotificationSettingsState
+    extends State<_CategoryNotificationSettings> {
+  late final List<Category> _categories;
+
+  @override
+  void initState() {
+    super.initState();
+    _categories = getIt<FirestoreService>().getAllCategories();
+  }
+
+  Future<void> _onToggle(String categoryId, bool follow) async {
+    await getIt<FirestoreService>().toggleFollowedCategory(
+      widget.userId,
+      categoryId,
+      !follow,
+    );
+    if (follow) {
+      await NotificationService.instance.subscribeToCategory(categoryId);
+    } else {
+      await NotificationService.instance.unsubscribeFromCategory(categoryId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<Set<String>>(
+      stream: getIt<FirestoreService>().getFollowedCategoryIdsStream(
+        widget.userId,
+      ),
+      builder: (context, snapshot) {
+        final followed = snapshot.data ?? const <String>{};
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Notifications par catégorie',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Reçois une alerte quand un deal est publié dans une catégorie que tu suis.',
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            for (final category in _categories)
+              Semantics(
+                label:
+                    'Notifications pour la catégorie ${category.name}, '
+                    '${followed.contains(category.id) ? 'activées' : 'désactivées'}',
+                child: SwitchListTile(
+                  secondary: Icon(category.icon, color: category.color),
+                  title: Text(category.name),
+                  value: followed.contains(category.id),
+                  onChanged: (value) => _onToggle(category.id, value),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

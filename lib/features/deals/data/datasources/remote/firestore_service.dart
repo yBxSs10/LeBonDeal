@@ -178,6 +178,33 @@ class FirestoreService {
     });
   }
 
+  // ─── Notifications par catégorie ───────────────────────────────────────────
+
+  Stream<Set<String>> getFollowedCategoryIdsStream(String userId) {
+    return _db.collection('users').doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return <String>{};
+      final data = doc.data()!;
+      return Set<String>.from(data['followedCategoryIds'] ?? []);
+    });
+  }
+
+  Future<void> toggleFollowedCategory(
+    String userId,
+    String categoryId,
+    bool currentlyFollowed,
+  ) async {
+    final userRef = _db.collection('users').doc(userId);
+    if (currentlyFollowed) {
+      await userRef.set({
+        'followedCategoryIds': FieldValue.arrayRemove([categoryId]),
+      }, SetOptions(merge: true));
+    } else {
+      await userRef.set({
+        'followedCategoryIds': FieldValue.arrayUnion([categoryId]),
+      }, SetOptions(merge: true));
+    }
+  }
+
   // ─── Catégories (statiques — pas besoin de Firestore) ───────────────────────
 
   List<Category> getAllCategories() => [
