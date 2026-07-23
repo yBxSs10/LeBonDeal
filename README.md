@@ -184,20 +184,21 @@ test/
 
 ### Protocole de branches
 
-Le projet suit un modèle de branches à 3 niveaux :
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 47 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
+```
+Développement local
+  └── git commit → git push origin main → GitHub Actions déclenché automatiquement
+```
+
+**Évolution prévue (phase 2, en cas de montée en équipe) :**
 ```
 main        ← branche de production, protégée
   └── develop     ← branche d'intégration
         └── feature/*   ← développement de fonctionnalités
             hotfix/*    ← correctifs urgents → merge direct sur main
 ```
-
-**Règles de fusion :**
-- `feature/*` → `develop` : merge via Pull Request, CI doit être verte
-- `develop` → `main` : merge via Pull Request après validation complète
-- `hotfix/*` → `main` : merge direct autorisé uniquement pour les correctifs critiques
-- Les push directs sur `main` sont interdits
+Le pipeline CI (`.github/workflows/ci.yml`) est déjà configuré pour se déclencher aussi sur `develop` et sur les Pull Requests vers `main`, en anticipation de ce modèle à plusieurs contributeurs.
 
 ### Pipeline CI/CD
 
