@@ -21,8 +21,13 @@ class ProfilePage extends StatelessWidget {
           message: 'Aucun utilisateur connecté',
           icon: Icons.person_off,
           action: ElevatedButton(
-            onPressed: () =>
-                Navigator.of(context).pushReplacementNamed('/login'),
+            // Aucune route nommée '/login' n'est enregistrée : on revient à
+            // la route racine, où _AuthGate (app.dart) affiche LoginPage
+            // tant qu'aucun utilisateur n'est authentifié.
+            onPressed: () => Navigator.of(
+              context,
+              rootNavigator: true,
+            ).popUntil((route) => route.isFirst),
             child: const Text('Se connecter'),
           ),
         ),

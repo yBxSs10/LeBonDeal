@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/providers/auth_provider.dart';
-import '../../../../core/navigation/main_navigation.dart';
 import '../widgets/login/login_bottom_cta.dart';
 import '../widgets/login/login_divider.dart';
 import '../widgets/login/login_header.dart';
@@ -33,16 +32,12 @@ class _LoginPageState extends State<LoginPage> {
     FocusScope.of(context).unfocus();
 
     try {
+      // La navigation vers MainNavigation est gérée par _AuthGate
+      // (app.dart), qui écoute authStateChanges() — aucun push manuel ici.
       await authProvider.signIn(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
-        );
-      }
     } catch (e) {
       // L'erreur est déjà gérée dans le AuthProvider
     }
@@ -142,13 +137,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleGuestLogin(AuthProvider authProvider) async {
     try {
+      // La navigation vers MainNavigation est gérée par _AuthGate
+      // (app.dart), qui écoute authStateChanges() — aucun push manuel ici.
       await authProvider.signInAnonymously();
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
-        );
-      }
     } catch (e) {
       // L'erreur est déjà gérée dans le AuthProvider
     }
