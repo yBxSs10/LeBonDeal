@@ -298,6 +298,32 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 
 ---
 
+## ✅ Traçabilité fonctionnalités ↔ user stories (MoSCoW C1.4.1)
+
+État réel du prototype face aux 15 fonctionnalités priorisées en Bloc 1 (C2.2.1).
+
+| Fonctionnalité | Priorité | User story | Statut | Preuve |
+|---|---|---|---|---|
+| Authentification | MUST | Je veux m'inscrire via email ou Google | ⚠️ Partiel | `features/auth/` : email/mot de passe opérationnel ; connexion Google non implémentée |
+| Création et publication d'un deal | MUST | Je veux poster un deal avec titre, prix, lien et image | ✅ | `add_deal_page.dart`, `add_deal_bloc.dart`, tests BLOC-001 à 005 |
+| Consultation des deals (feed) | MUST | Je veux voir les meilleurs deals triés par popularité | ✅ | `home_page.dart`, `trending_page.dart`, tests DEAL-012 |
+| Upvote / Downvote | MUST | Je veux voter pour évaluer la qualité d'un deal | ✅ | Sous-collection `votes` (`firestore.rules`), tests DEAL-014/015 |
+| Commentaires | MUST | Je veux commenter un deal pour partager mon avis | ✅ | `comments/`, tests DEAL-010 |
+| Recherche + filtres | MUST | Je veux filtrer les deals par catégorie, prix et marchand | ⚠️ Partiel | Recherche texte (titre/marchand) + filtre catégorie dans `home_page.dart` ; filtre par tranche de prix non implémenté |
+| Profils utilisateurs | MUST | Je veux consulter mon profil et mes deals postés | ✅ | `profile/presentation/pages/profile_page.dart` |
+| Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ✅ | `core/services/notification_service.dart` (restauré — cf. CHANGELOG) |
+| Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ⚠️ Partiel | Collection `reports` + règles Firestore dédiées ; pas d'écran de signalement côté UI |
+| Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ❌ Non implémenté | Rôle `moderator` géré côté règles Firestore, aucun écran de modération |
+| Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ⚠️ Partiel | Limite de 500 caractères sur les commentaires (`firestore.rules`) ; pas de détection algorithmique |
+| Maquettes UI/UX | COULD | Je veux une interface intuitive et agréable | ✅ | Thème Material 3 (`app_theme.dart`), sémantique WCAG 2.1 AA |
+| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 47 tests unitaires (recette initiale visait un socle plus restreint) |
+| Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
+| Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
+
+**Bilan** : 6/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix) ; les SHOULD (signalement, modération, anti-spam) ont leur modèle de données et leurs règles de sécurité posés côté Firestore mais pas d'interface ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+
+---
+
 ## 🔧 Outils recommandés
 
 - **VS Code** avec extensions Flutter et Dart

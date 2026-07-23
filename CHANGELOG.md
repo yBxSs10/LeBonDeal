@@ -5,6 +5,22 @@ Format : [version] — date — description
 
 ---
 
+## [1.1.0] — 2026-07-23
+
+### Ajouté
+- Notifications push FCM (`firebase_messaging`) — permission, token, handlers foreground/background/terminated, guard non-mobile
+- Traçabilité fonctionnalités ↔ user stories MoSCoW (C1.4.1) dans le README
+
+### Corrigé
+- Incompatibilité `fake_cloud_firestore` (^4.1.0 → ^4.2.0) avec la signature générique `WriteBatch.update<T>` de `cloud_firestore` 6.7.x — cause réelle du conflit précédemment attribué à `firebase_core ^4.x` (voir revert `37aa4c0`)
+
+### Documenté
+- Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)
+- Périmètre réel du déploiement continu (build + artefact APK, pas encore de livraison automatisée vers un store)
+- Protocole de branches aligné sur le workflow réel (développement solo, push direct sur `main`)
+
+---
+
 ## [1.0.0] — 2026-06-16
 
 ### Ajouté
