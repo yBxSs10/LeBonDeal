@@ -29,10 +29,15 @@
 | GitHub | Hébergement dépôt + CI/CD | — |
 | GitHub Actions | Serveur d'intégration continue | ubuntu-latest |
 | Firebase CLI | Déploiement des règles Firestore | 13.x |
+| Firestore + Cloud Functions | Serveur d'application (backend serverless) | Google Cloud, région `europe-west1` |
 | VS Code | Éditeur de code | Extensions : Flutter, Dart |
 | Android Studio | Émulateur Android (AVD) | Hedgehog+ |
 
+> Architecture serverless : il n'y a pas de serveur d'application à administrer au sens traditionnel — Firebase (Firestore, Auth, Cloud Functions) joue ce rôle de manière managée par Google Cloud.
+
 ### Séquences de déploiement
+
+Le périmètre actuel couvre l'**intégration continue** (build + test automatisés à chaque push) et le **déploiement de l'artefact applicatif** (APK distribué comme prototype testable). Il n'y a pas encore de déploiement continu vers un environnement géré (Firebase App Distribution, Play Store internal track) — c'est une évolution identifiée pour la phase 2.
 
 ```
 Développement local
@@ -42,6 +47,9 @@ Développement local
                                     ↓
                         APK téléchargeable sur GitHub Actions
                         (prototype fonctionnel, testable sans store)
+
+En parallèle : déploiement du backend
+  └── firebase deploy → règles Firestore + Cloud Functions publiées sur l'environnement Firebase (serveur d'application)
 ```
 
 ### Critères de qualité et performance
