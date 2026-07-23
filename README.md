@@ -248,7 +248,7 @@ Les règles de sécurité sont définies dans `firestore.rules` :
 - Modèle de rôles : `user` / `moderator` / `admin`, rôle immuable côté client (attribution `moderator`/`admin` uniquement via Firebase Console/Admin SDK)
 - Prix revalidé (`> 0`) à la création **et** à la mise à jour d'un deal
 - Anti-spam : commentaires ≤ 500 caractères, et 30s minimum entre deux publications de deal par le même auteur (`users/{uid}.lastDealPublishedAt`)
-- 4 correctifs vérifiés par script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions)
+- 4 correctifs vérifiés par script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions) et **déployés en production**
 
 ```bash
 # Déployer les règles (Firebase CLI requis)

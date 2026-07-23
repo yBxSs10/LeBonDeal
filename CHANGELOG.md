@@ -23,7 +23,7 @@ Format : [version] — date — description
 - `firestore.rules` : lecture de `users/{userId}` restreinte au propriétaire ou à un modérateur (auparavant lisible par tout compte authentifié, exposant email/displayName de tous les utilisateurs)
 - `firestore.rules` : la mise à jour d'un deal revalide désormais `price` (auparavant seule la création vérifiait `price > 0`, un auteur pouvait ensuite passer son deal à 0€)
 - `firestore.rules` + `firestore_service.dart` : anti-spam à la publication — un deal est rejeté s'il est publié moins de 30s après le précédent du même auteur (`users/{uid}.lastDealPublishedAt`, écrit dans le même batch que la création du deal)
-- Les 4 correctifs vérifiés par un script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions passées) — cf. le tableau de traçabilité C2.3.1
+- Les 4 correctifs vérifiés par un script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions passées), puis déployés en production (`firebase deploy --only firestore:rules`) — cf. le tableau de traçabilité C2.3.1
 
 ### Documenté
 - Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)
