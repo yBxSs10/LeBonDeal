@@ -47,8 +47,14 @@ class FirestoreService {
         .map((s) => s.docs.map(_dealFromDoc).toList());
   }
 
-  Future<DocumentReference> addDeal(Deal deal) {
-    return _db.collection('deals').add({
+  Future<DocumentReference> addDeal(Deal deal) async {
+    final dealRef = _db.collection('deals').doc();
+    // Écrit dans le même batch que users/{uid}.lastDealPublishedAt, lu par
+    // la règle Firestore recentlyPublishedDeal() pour l'anti-spam (30s).
+    final userRef = _db.collection('users').doc(deal.authorId);
+
+    final batch = _db.batch();
+    batch.set(dealRef, {
       'title': deal.title,
       'description': deal.description,
       'price': deal.price,
@@ -68,6 +74,12 @@ class FirestoreService {
       'isPopular': deal.isPopular,
       'createdAt': FieldValue.serverTimestamp(),
     });
+    batch.set(userRef, {
+      'lastDealPublishedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    await batch.commit();
+    return dealRef;
   }
 
   // ─── Votes (température) ─────────────────────────────────────────────────────

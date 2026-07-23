@@ -25,6 +25,14 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Vérifie que l'utilisateur est authentifié ET n'est pas une session
+    // invité (anonyme) — requis pour toute action nécessitant d'être
+    // imputable à un compte réel (voter, commenter, publier).
+    function isNotAnonymous() {
+      return isAuthenticated()
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
     // Vérifie que l'utilisateur est le propriétaire de la ressource
     function isOwner(authorId) {
       return isAuthenticated() && request.auth.uid == authorId;
@@ -49,13 +57,22 @@ service cloud.firestore {
       return field in data && data[field] != null && data[field] != '';
     }
 
+    // Anti-spam : bloque la publication d'un deal si l'auteur en a déjà
+    // publié un il y a moins de 30 secondes (users/{uid}.lastDealPublishedAt,
+    // mis à jour par le même batch que la création du deal côté client).
+    function recentlyPublishedDeal(uid) {
+      let lastAt = get(/databases/$(database)/documents/users/$(uid)).data.lastDealPublishedAt;
+      return lastAt is timestamp && request.time < lastAt + duration.value(30, 's');
+    }
+
     // ----------------------------------------------------------
     // COLLECTION : users
     // Stocke les profils utilisateurs (id, email, displayName, role)
     // ----------------------------------------------------------
     match /users/{userId} {
-      // Lecture : authentifié uniquement (pas de profil public)
-      allow read: if isAuthenticated();
+      // Lecture : son propre profil, ou un modérateur (pas de profil public —
+      // évite d'exposer l'email/displayName de tous les utilisateurs)
+      allow read: if isOwner(userId) || isModerator();
 
       // Création : uniquement son propre profil, à l'inscription
       allow create: if isOwner(userId)
@@ -81,20 +98,24 @@ service cloud.firestore {
       // Lecture : publique (même non connecté)
       allow read: if true;
 
-      // Création : authentifié + champs obligatoires valides
-      allow create: if isAuthenticated()
+      // Création : compte réel (non anonyme) + champs obligatoires valides
+      // + anti-spam (30s entre deux publications du même auteur)
+      allow create: if isNotAnonymous()
         && hasField(request.resource.data, 'title')
         && hasField(request.resource.data, 'price')
         && hasField(request.resource.data, 'authorId')
         && request.resource.data.authorId == request.auth.uid
         && request.resource.data.price is number
-        && request.resource.data.price > 0;
+        && request.resource.data.price > 0
+        && !recentlyPublishedDeal(request.auth.uid);
 
       // Mise à jour :
-      //   - auteur : peut modifier son deal (sauf authorId)
+      //   - auteur : peut modifier son deal (sauf authorId), prix toujours valide
       //   - modérateur : peut modifier isTrending, isPopular, badge
       allow update: if (isOwner(resource.data.authorId)
-          && request.resource.data.authorId == resource.data.authorId)
+          && request.resource.data.authorId == resource.data.authorId
+          && request.resource.data.price is number
+          && request.resource.data.price > 0)
         || isModerator();
 
       // Suppression : auteur ou modérateur
@@ -106,7 +127,7 @@ service cloud.firestore {
       // ----------------------------------------------------------
       match /votes/{userId} {
         allow read: if true;
-        allow write: if isAuthenticated() && request.auth.uid == userId;
+        allow write: if isNotAnonymous() && request.auth.uid == userId;
       }
     }
 
@@ -118,8 +139,8 @@ service cloud.firestore {
       // Lecture : publique
       allow read: if true;
 
-      // Création : authentifié + contenu non vide + authorId cohérent
-      allow create: if isAuthenticated()
+      // Création : compte réel (non anonyme) + contenu non vide + authorId cohérent
+      allow create: if isNotAnonymous()
         && hasField(request.resource.data, 'content')
         && hasField(request.resource.data, 'dealId')
         && hasField(request.resource.data, 'authorId')

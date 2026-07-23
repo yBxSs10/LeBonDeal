@@ -18,6 +18,13 @@ Format : [version] — date — description
 - Blocage de reconnexion après déconnexion (invité ou email) : `login_page.dart` remplaçait `_AuthGate` (le routeur réactif basé sur `authStateChanges()`) via un `Navigator.pushReplacement` manuel, et le bouton "Se connecter" de l'état déconnecté ciblait une route nommée `/login` jamais enregistrée
 - Étiquette "NEW" affichée indéfiniment sur les anciens deals et ancienneté affichée uniquement en heures (ex. "il y a 888h") — ajout de `Deal.timeAgoLabel` (h/j/semaines/mois) et `Deal.shouldShowBadge` (le badge NEW expire après 24h, HOT reste permanent)
 
+### Sécurité
+- `firestore.rules` : rejet des sessions invité (anonymes) pour voter, commenter et publier un deal (`isNotAnonymous()`) — auparavant seul le client bloquait ces actions, une requête directe à l'API Firestore avec un token anonyme les contournait
+- `firestore.rules` : lecture de `users/{userId}` restreinte au propriétaire ou à un modérateur (auparavant lisible par tout compte authentifié, exposant email/displayName de tous les utilisateurs)
+- `firestore.rules` : la mise à jour d'un deal revalide désormais `price` (auparavant seule la création vérifiait `price > 0`, un auteur pouvait ensuite passer son deal à 0€)
+- `firestore.rules` + `firestore_service.dart` : anti-spam à la publication — un deal est rejeté s'il est publié moins de 30s après le précédent du même auteur (`users/{uid}.lastDealPublishedAt`, écrit dans le même batch que la création du deal)
+- Les 4 correctifs vérifiés par un script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions passées) — cf. le tableau de traçabilité C2.3.1
+
 ### Documenté
 - Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)
 - Périmètre réel du déploiement continu (build + artefact APK, pas encore de livraison automatisée vers un store)

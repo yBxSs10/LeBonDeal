@@ -242,10 +242,13 @@ lib/firebase_options.dart
 
 Les règles de sécurité sont définies dans `firestore.rules` :
 
-- Lecture publique des deals
+- Lecture publique des deals ; profils utilisateurs lisibles par leur propriétaire ou un modérateur uniquement
 - Écriture authentifiée avec vérification `authorId == uid`
-- Modèle de rôles : `user` / `moderator` / `admin`
-- Limite anti-spam : commentaires ≤ 500 caractères
+- Vote, commentaire et publication réservés aux comptes réels — rejetés pour les sessions invité (anonymes) via `isNotAnonymous()`, y compris en appel direct à l'API (pas seulement côté client)
+- Modèle de rôles : `user` / `moderator` / `admin`, rôle immuable côté client (attribution `moderator`/`admin` uniquement via Firebase Console/Admin SDK)
+- Prix revalidé (`> 0`) à la création **et** à la mise à jour d'un deal
+- Anti-spam : commentaires ≤ 500 caractères, et 30s minimum entre deux publications de deal par le même auteur (`users/{uid}.lastDealPublishedAt`)
+- 4 correctifs vérifiés par script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions)
 
 ```bash
 # Déployer les règles (Firebase CLI requis)
@@ -271,7 +274,9 @@ firebase deploy --only firestore:rules
 
 - Firestore Security Rules (principe du moindre privilège)
 - Vérification `authorId == request.auth.uid` à chaque écriture
-- Blocage de la publication pour les utilisateurs anonymes
+- Blocage serveur (pas seulement client) du vote, des commentaires et de la publication pour les comptes invités (anonymes)
+- Profils utilisateurs non exposés publiquement (lecture restreinte au propriétaire/modérateur)
+- Anti-spam à la publication : 30s minimum entre deux deals du même auteur
 - Validation des données côté règles Firestore
 
 ### ♿ Accessibilité
