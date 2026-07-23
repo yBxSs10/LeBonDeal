@@ -87,7 +87,7 @@ class DealCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (deal.badge != null && deal.badge!.isNotEmpty)
+                  if (deal.shouldShowBadge)
                     Positioned(
                       top: 8,
                       left: 8,
@@ -223,7 +223,7 @@ class DealCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          'il y a ${deal.publishedHoursAgo}h',
+                          deal.timeAgoLabel,
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.grey[600],

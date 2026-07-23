@@ -18,6 +18,8 @@ Deal makeDeal({
   String authorId = 'uid_test_001',
   bool isTrending = false,
   bool isPopular = false,
+  int publishedHoursAgo = 1,
+  String? badge,
 }) {
   return Deal(
     id: id,
@@ -30,7 +32,8 @@ Deal makeDeal({
     storeName: 'Apple Store',
     author: 'Testeur',
     authorId: authorId,
-    publishedHoursAgo: 1,
+    publishedHoursAgo: publishedHoursAgo,
+    badge: badge,
     comments: 0,
     favorites: 0,
     shares: 0,
@@ -112,6 +115,43 @@ void main() {
       // ASSERT
       expect(trending.isTrending, true);
       expect(trending.isPopular, false); // non touché
+    });
+
+    // -------------------------------------------------------
+    // DEAL-019 : timeAgoLabel formate l'ancienneté par unité adaptée
+    // -------------------------------------------------------
+    test('DEAL-019 : timeAgoLabel bascule heures/jours/semaines/mois', () {
+      expect(makeDeal(publishedHoursAgo: 0).timeAgoLabel, "à l'instant");
+      expect(makeDeal(publishedHoursAgo: 5).timeAgoLabel, 'il y a 5h');
+      expect(makeDeal(publishedHoursAgo: 48).timeAgoLabel, 'il y a 2j');
+      expect(
+        makeDeal(publishedHoursAgo: 24 * 10).timeAgoLabel,
+        'il y a 1 semaine',
+      );
+      expect(
+        makeDeal(publishedHoursAgo: 24 * 20).timeAgoLabel,
+        'il y a 2 semaines',
+      );
+      expect(makeDeal(publishedHoursAgo: 888).timeAgoLabel, 'il y a 1 mois');
+    });
+
+    // -------------------------------------------------------
+    // DEAL-020 : shouldShowBadge expire l'étiquette "NEW" après 24h
+    // -------------------------------------------------------
+    test('DEAL-020 : le badge NEW expire après 24h, HOT reste affiché', () {
+      expect(
+        makeDeal(badge: 'NEW', publishedHoursAgo: 5).shouldShowBadge,
+        true,
+      );
+      expect(
+        makeDeal(badge: 'NEW', publishedHoursAgo: 888).shouldShowBadge,
+        false,
+      );
+      expect(
+        makeDeal(badge: 'HOT', publishedHoursAgo: 888).shouldShowBadge,
+        true,
+      );
+      expect(makeDeal(badge: null).shouldShowBadge, false);
     });
   });
 }

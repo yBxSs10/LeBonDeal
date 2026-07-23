@@ -45,6 +45,26 @@ class Deal {
   String get priceLabel => '${price.toStringAsFixed(2)} €';
   String get originalPriceLabel => '${originalPrice.toStringAsFixed(2)} €';
 
+  /// Ancienneté formatée en unité adaptée (minutes → heures → jours → semaines → mois).
+  String get timeAgoLabel {
+    if (publishedHoursAgo < 1) return "à l'instant";
+    if (publishedHoursAgo < 24) return 'il y a ${publishedHoursAgo}h';
+    final days = publishedHoursAgo ~/ 24;
+    if (days < 7) return 'il y a ${days}j';
+    final weeks = days ~/ 7;
+    if (weeks < 4) return 'il y a $weeks semaine${weeks > 1 ? 's' : ''}';
+    final months = days ~/ 30;
+    return 'il y a $months mois';
+  }
+
+  /// L'étiquette "NEW" est temporaire (< 24h) ; les autres badges
+  /// (HOT, ou personnalisés fixés par un modérateur) restent affichés.
+  bool get shouldShowBadge {
+    if (badge == null || badge!.isEmpty) return false;
+    if (badge == 'NEW') return publishedHoursAgo < 24;
+    return true;
+  }
+
   // Creates a copy of the Deal with the given fields replaced by the non-null values
   Deal copyWith({
     String? id,

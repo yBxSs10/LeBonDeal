@@ -133,7 +133,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **47 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
+Le projet contient **49 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -155,10 +155,11 @@ flutter test --coverage
 ✅ DEAL-001 à DEAL-005   — Entité Deal (copyWith, formatage)
 ✅ DEAL-006 à DEAL-009   — Persistance Firestore + garde utilisateur anonyme
 ✅ DEAL-010 à DEAL-018   — FirestoreService (vote, favoris, commentaires, streams)
+✅ DEAL-019 à DEAL-020   — Ancienneté formatée (timeAgoLabel) et expiration du badge NEW
 ✅ BLOC-001 à BLOC-005   — AddDealBloc (état, catégories, notifications)
 ✅ SEC-001  à SEC-005    — Validation et règles de sécurité
 
-+47: All tests passed!
++49: All tests passed!
 ```
 
 ### Fichiers de tests
@@ -170,7 +171,7 @@ test/
 │   ├── auth_repository_test.dart      # AUTH-001 à AUTH-005
 │   └── auth_provider_test.dart        # AUTH-P01 à AUTH-P06
 ├── features/deals/
-│   ├── deal_entity_test.dart          # DEAL-001 à DEAL-005
+│   ├── deal_entity_test.dart          # DEAL-001 à DEAL-005, DEAL-019 à DEAL-020
 │   ├── create_deal_usecase_test.dart  # DEAL-006 à DEAL-009
 │   ├── firestore_service_test.dart    # DEAL-010 à DEAL-018
 │   └── add_deal_bloc_test.dart        # BLOC-001 à BLOC-005
@@ -184,7 +185,7 @@ test/
 
 ### Protocole de branches
 
-Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 47 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 49 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
 ```
 Développement local
@@ -316,7 +317,7 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ❌ Non implémenté | Rôle `moderator` géré côté règles Firestore, aucun écran de modération |
 | Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ⚠️ Partiel | Limite de 500 caractères sur les commentaires (`firestore.rules`) ; pas de détection algorithmique |
 | Maquettes UI/UX | COULD | Je veux une interface intuitive et agréable | ✅ | Thème Material 3 (`app_theme.dart`), sémantique WCAG 2.1 AA |
-| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 47 tests unitaires (recette initiale visait un socle plus restreint) |
+| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 49 tests unitaires (recette initiale visait un socle plus restreint) |
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 

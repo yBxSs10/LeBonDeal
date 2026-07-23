@@ -15,6 +15,8 @@ Format : [version] — date — description
 
 ### Corrigé
 - Incompatibilité `fake_cloud_firestore` (^4.1.0 → ^4.2.0) avec la signature générique `WriteBatch.update<T>` de `cloud_firestore` 6.7.x — cause réelle du conflit précédemment attribué à `firebase_core ^4.x` (voir revert `37aa4c0`)
+- Blocage de reconnexion après déconnexion (invité ou email) : `login_page.dart` remplaçait `_AuthGate` (le routeur réactif basé sur `authStateChanges()`) via un `Navigator.pushReplacement` manuel, et le bouton "Se connecter" de l'état déconnecté ciblait une route nommée `/login` jamais enregistrée
+- Étiquette "NEW" affichée indéfiniment sur les anciens deals et ancienneté affichée uniquement en heures (ex. "il y a 888h") — ajout de `Deal.timeAgoLabel` (h/j/semaines/mois) et `Deal.shouldShowBadge` (le badge NEW expire après 24h, HOT reste permanent)
 
 ### Documenté
 - Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)
