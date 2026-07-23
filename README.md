@@ -311,7 +311,7 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Commentaires | MUST | Je veux commenter un deal pour partager mon avis | ✅ | `comments/`, tests DEAL-010 |
 | Recherche + filtres | MUST | Je veux filtrer les deals par catégorie, prix et marchand | ⚠️ Partiel | Recherche texte (titre/marchand) + filtre catégorie dans `home_page.dart` ; filtre par tranche de prix non implémenté |
 | Profils utilisateurs | MUST | Je veux consulter mon profil et mes deals postés | ✅ | `profile/presentation/pages/profile_page.dart` |
-| Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ✅ | `core/services/notification_service.dart` (restauré — cf. CHANGELOG) |
+| Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ⚠️ Partiel | Transport FCM validé en conditions réelles (permission accordée + token généré + notification reçue, testé sur émulateur Android via `core/services/notification_service.dart`) ; **ciblage par catégorie non implémenté** — pas d'abonnement à un topic par catégorie (`subscribeToTopic`), pas de Cloud Function déclenchant un envoi à la publication d'un deal |
 | Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ⚠️ Partiel | Collection `reports` + règles Firestore dédiées ; pas d'écran de signalement côté UI |
 | Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ❌ Non implémenté | Rôle `moderator` géré côté règles Firestore, aucun écran de modération |
 | Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ⚠️ Partiel | Limite de 500 caractères sur les commentaires (`firestore.rules`) ; pas de détection algorithmique |
@@ -320,7 +320,9 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 
-**Bilan** : 6/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix) ; les SHOULD (signalement, modération, anti-spam) ont leur modèle de données et leurs règles de sécurité posés côté Firestore mais pas d'interface ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+**Bilan** : 5/8 MUST pleinement couverts, 3/8 partiels (Google Sign-In, filtre prix, ciblage des notifications par catégorie) ; les SHOULD (signalement, modération, anti-spam) ont leur modèle de données et leurs règles de sécurité posés côté Firestore mais pas d'interface ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+
+Le transport FCM (permission, token, réception) est validé de bout en bout en conditions réelles — c'est le ciblage métier (alertes par catégorie suivie) qui reste à construire : abonnement `subscribeToTopic(categoryId)` côté client + une Cloud Function déclenchée à la création d'un deal qui publie sur le topic correspondant.
 
 ---
 
