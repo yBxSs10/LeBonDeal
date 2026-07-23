@@ -13,6 +13,7 @@ Format : [version] — date — description
 - Cloud Function `notifyNewDealInCategory` (`functions/index.js`) — publie sur le topic de la catégorie à chaque création de deal (non déployée — code testé via émulateurs Firestore + Functions)
 - Signalement d'un deal (bouton "Signaler", 4 motifs) et écran de modération (`ModerationPage` : liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin`
 - Détection automatique de spam à la publication (`SpamDetector` : mots-clés bannis, majuscules excessives, caractères répétés) — un deal suspect est publié puis auto-signalé dans la file de modération plutôt que bloqué, pour ne pas pénaliser un faux positif
+- Filtre par tranche de prix sur le feed (`home_page.dart`) — icône dédiée à côté de la recherche, chip actif avec suppression rapide, combiné à la recherche texte et au filtre catégorie déjà existants
 - Traçabilité fonctionnalités ↔ user stories MoSCoW (C1.4.1) dans le README
 
 ### Corrigé

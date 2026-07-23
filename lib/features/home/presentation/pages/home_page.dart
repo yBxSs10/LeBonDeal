@@ -24,6 +24,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Category? _selectedCategory;
   String _searchQuery = '';
+  double? _minPrice;
+  double? _maxPrice;
   Set<String> _savedDealIds = {};
   StreamSubscription<Set<String>>? _savedSub;
 
@@ -65,16 +67,90 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Deal> _filter(List<Deal> deals) {
-    if (_searchQuery.isEmpty) return deals;
-    final q = _searchQuery.toLowerCase();
-    return deals
-        .where(
-          (d) =>
-              d.title.toLowerCase().contains(q) ||
-              d.description.toLowerCase().contains(q) ||
-              d.storeName.toLowerCase().contains(q),
-        )
-        .toList();
+    var result = deals;
+
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      result = result
+          .where(
+            (d) =>
+                d.title.toLowerCase().contains(q) ||
+                d.description.toLowerCase().contains(q) ||
+                d.storeName.toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
+    if (_minPrice != null) {
+      result = result.where((d) => d.price >= _minPrice!).toList();
+    }
+    if (_maxPrice != null) {
+      result = result.where((d) => d.price <= _maxPrice!).toList();
+    }
+
+    return result;
+  }
+
+  bool get _hasPriceFilter => _minPrice != null || _maxPrice != null;
+
+  Future<void> _showPriceFilterDialog() async {
+    final minController = TextEditingController(
+      text: _minPrice?.toStringAsFixed(0) ?? '',
+    );
+    final maxController = TextEditingController(
+      text: _maxPrice?.toStringAsFixed(0) ?? '',
+    );
+
+    final apply = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Filtrer par prix'),
+        content: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: minController,
+                keyboardType: const TextInputType.numberWithOptions(),
+                decoration: const InputDecoration(labelText: 'Min (€)'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: maxController,
+                keyboardType: const TextInputType.numberWithOptions(),
+                decoration: const InputDecoration(labelText: 'Max (€)'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              minController.clear();
+              maxController.clear();
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Réinitialiser'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Appliquer'),
+          ),
+        ],
+      ),
+    );
+
+    if (apply == true) {
+      setState(() {
+        _minPrice = double.tryParse(minController.text.trim());
+        _maxPrice = double.tryParse(maxController.text.trim());
+      });
+    }
   }
 
   Future<void> _toggleSave(String dealId, bool isSaved) async {
@@ -98,9 +174,44 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    custom_search.SearchBar(
-                      onSearch: (q) => setState(() => _searchQuery = q),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: custom_search.SearchBar(
+                            onSearch: (q) => setState(() => _searchQuery = q),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Semantics(
+                          label: _hasPriceFilter
+                              ? 'Filtre de prix actif, ${_minPrice?.toStringAsFixed(0) ?? '0'}€ à ${_maxPrice?.toStringAsFixed(0) ?? '∞'}€'
+                              : 'Filtrer par prix',
+                          button: true,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.filter_alt,
+                              color: _hasPriceFilter
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.grey[600],
+                            ),
+                            onPressed: _showPriceFilterDialog,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (_hasPriceFilter)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: InputChip(
+                          label: Text(
+                            'Prix : ${_minPrice?.toStringAsFixed(0) ?? '0'}€ - ${_maxPrice?.toStringAsFixed(0) ?? '∞'}€',
+                          ),
+                          onDeleted: () => setState(() {
+                            _minPrice = null;
+                            _maxPrice = null;
+                          }),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     _buildCategoriesSection(categories),
                     const SizedBox(height: 24),
