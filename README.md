@@ -133,7 +133,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **50 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
+Le projet contient **55 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -159,8 +159,9 @@ flutter test --coverage
 ✅ DEAL-019 à DEAL-020   — Ancienneté formatée (timeAgoLabel) et expiration du badge NEW
 ✅ BLOC-001 à BLOC-005   — AddDealBloc (état, catégories, notifications)
 ✅ SEC-001  à SEC-005    — Validation et règles de sécurité
+✅ SEC-006  à SEC-010    — Détection automatique de spam (SpamDetector)
 
-+50: All tests passed!
++55: All tests passed!
 ```
 
 ### Fichiers de tests
@@ -177,7 +178,8 @@ test/
 │   ├── firestore_service_test.dart    # DEAL-010 à DEAL-018
 │   └── add_deal_bloc_test.dart        # BLOC-001 à BLOC-005
 └── features/security/
-    └── deal_validation_test.dart      # SEC-001 à SEC-005
+    ├── deal_validation_test.dart      # SEC-001 à SEC-005
+    └── spam_detector_test.dart        # SEC-006 à SEC-010
 ```
 
 ---
@@ -186,7 +188,7 @@ test/
 
 ### Protocole de branches
 
-Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 50 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 55 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
 ```
 Développement local
@@ -323,13 +325,13 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ⚠️ Code complet, déploiement en attente | Transport FCM validé en conditions réelles (permission + token + réception, testé sur émulateur Android). Ciblage par catégorie implémenté : écran "Notifications par catégorie" (`profile_page.dart`) → `FirestoreService.toggleFollowedCategory` (persistance `users/{uid}.followedCategoryIds`) → `NotificationService.subscribeToCategory` (topic `category_<id>`), testé de bout en bout sur émulateur (toggle → écriture Firestore → abonnement FCM confirmés en log). Cloud Function `notifyNewDealInCategory` (`functions/index.js`) publie sur le topic à la création d'un deal — validée via l'émulateur Firebase (Firestore + Functions), **reste à déployer en production** (`firebase deploy --only functions`) |
 | Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ✅ | Bouton "Signaler" sur la fiche deal (masqué sur son propre deal), 4 motifs, testé de bout en bout sur émulateur — `report_dialog.dart`, `FirestoreService.createReport` |
 | Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ✅ | Écran `ModerationPage` (liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin` uniquement (`getUserRoleStream`) — attribution du rôle toujours manuelle (Firebase Console), par choix de sécurité |
-| Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ⚠️ Partiel | Limite de 500 caractères sur les commentaires (`firestore.rules`) ; pas de détection algorithmique |
+| Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ✅ | `SpamDetector` (mots-clés bannis, majuscules excessives, caractères répétés) — un deal suspect est publié puis auto-signalé dans la file de modération (pas de blocage, pour éviter qu'un faux positif ne pénalise un auteur légitime), 5 tests (SEC-006 à SEC-010), vérifié de bout en bout sur émulateur |
 | Maquettes UI/UX | COULD | Je veux une interface intuitive et agréable | ✅ | Thème Material 3 (`app_theme.dart`), sémantique WCAG 2.1 AA |
 | Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 50 tests unitaires (recette initiale visait un socle plus restreint) |
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 
-**Bilan** : 5/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix), 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie) ; 2/3 SHOULD pleinement couverts (signalement, modération) et testés de bout en bout, 1/3 partiel (détection de spam limitée à une contrainte de longueur) ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+**Bilan** : 5/8 MUST pleinement couverts, 2/8 partiels (Google Sign-In, filtre prix), 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie) ; 3/3 SHOULD pleinement couverts (signalement, modération, détection de spam) et testés de bout en bout ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
 
 Le ciblage des notifications par catégorie est entièrement codé et testé (client + Cloud Function via émulateurs) mais nécessite un `firebase deploy --only functions` pour être actif en production — cette étape n'a pas été effectuée pour ne pas modifier le projet Firebase partagé sans validation explicite.
 

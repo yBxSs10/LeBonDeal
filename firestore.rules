@@ -61,8 +61,11 @@ service cloud.firestore {
     // publié un il y a moins de 30 secondes (users/{uid}.lastDealPublishedAt,
     // mis à jour par le même batch que la création du deal côté client).
     function recentlyPublishedDeal(uid) {
-      let lastAt = get(/databases/$(database)/documents/users/$(uid)).data.lastDealPublishedAt;
-      return lastAt is timestamp && request.time < lastAt + duration.value(30, 's');
+      let path = /databases/$(database)/documents/users/$(uid);
+      return exists(path)
+        && 'lastDealPublishedAt' in get(path).data
+        && get(path).data.lastDealPublishedAt is timestamp
+        && request.time < get(path).data.lastDealPublishedAt + duration.value(30, 's');
     }
 
     // ----------------------------------------------------------

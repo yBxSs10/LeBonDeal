@@ -12,6 +12,7 @@ Format : [version] — date — description
 - Ciblage des notifications par catégorie : écran "Notifications par catégorie" (profil), abonnement/désabonnement aux topics FCM par catégorie, persistance `users/{uid}.followedCategoryIds`
 - Cloud Function `notifyNewDealInCategory` (`functions/index.js`) — publie sur le topic de la catégorie à chaque création de deal (non déployée — code testé via émulateurs Firestore + Functions)
 - Signalement d'un deal (bouton "Signaler", 4 motifs) et écran de modération (`ModerationPage` : liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin`
+- Détection automatique de spam à la publication (`SpamDetector` : mots-clés bannis, majuscules excessives, caractères répétés) — un deal suspect est publié puis auto-signalé dans la file de modération plutôt que bloqué, pour ne pas pénaliser un faux positif
 - Traçabilité fonctionnalités ↔ user stories MoSCoW (C1.4.1) dans le README
 
 ### Corrigé
@@ -26,6 +27,7 @@ Format : [version] — date — description
 - `firestore.rules` + `firestore_service.dart` : anti-spam à la publication — un deal est rejeté s'il est publié moins de 30s après le précédent du même auteur (`users/{uid}.lastDealPublishedAt`, écrit dans le même batch que la création du deal)
 - Les 4 correctifs vérifiés par un script `@firebase/rules-unit-testing` contre l'émulateur Firestore (7/7 assertions passées), puis déployés en production (`firebase deploy --only firestore:rules`) — cf. le tableau de traçabilité C2.3.1
 - Inscription (`register_page.dart` → `AuthRepositoryImpl.createUserWithEmailAndPassword`) ne créait jamais le document `users/{uid}` (email, displayName, role) attendu par `firestore.rules` — les écritures ultérieures (favoris, catégories suivies) échouaient silencieusement pour tout nouveau compte, faute de document existant respectant la règle `create`. Écriture ajoutée, best-effort (ne bloque pas l'inscription si elle échoue), testée (AUTH-006)
+- **Bug critique** : `recentlyPublishedDeal()` (règle anti-spam ajoutée dans ce même correctif de sécurité) accédait directement à `users/{uid}.lastDealPublishedAt` sans vérifier son existence — pour tout auteur n'ayant encore jamais publié (champ absent), l'évaluation de la règle plantait et **bloquait la publication de deals pour tout le monde**. Repéré en testant la détection de spam en conditions réelles ; le script `@firebase/rules-unit-testing` ne couvrait que le cas où le champ existait déjà, pas son absence. Corrigé (garde `exists()` + `in`), test de non-régression ajouté, redéployé en urgence
 
 ### Documenté
 - Serveur d'application identifié explicitement (Firestore + Cloud Functions, architecture serverless)

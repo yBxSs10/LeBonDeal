@@ -5,6 +5,7 @@ import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
+import 'package:lebondeal/features/deals/domain/services/spam_detector.dart';
 
 class AddDealBloc extends ChangeNotifier {
   final _formKey = GlobalKey<FormState>();
@@ -91,10 +92,40 @@ class AddDealBloc extends ChangeNotifier {
 
     setSubmitting(true);
     try {
-      await getIt<FirestoreService>().addDeal(_buildDeal());
+      final deal = _buildDeal();
+      final dealRef = await getIt<FirestoreService>().addDeal(deal);
+      await _flagIfSuspicious(dealRef.id, deal, user.uid);
       onDealAdded?.call();
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  /// Détection automatique (SEC — anti-spam) : un deal suspect est publié
+  /// normalement mais signalé pour revue par un modérateur, plutôt que
+  /// bloqué — un faux positif ne doit pas empêcher un auteur légitime de
+  /// publier. Best-effort : ne fait jamais échouer la publication.
+  Future<void> _flagIfSuspicious(
+    String dealId,
+    Deal deal,
+    String authorId,
+  ) async {
+    final check = SpamDetector.check(
+      title: deal.title,
+      description: deal.description,
+    );
+    if (!check.isSuspicious) return;
+
+    try {
+      await getIt<FirestoreService>().createReport(
+        targetId: dealId,
+        targetType: 'deal',
+        targetTitle: deal.title,
+        reason: 'Détection automatique — ${check.reasons.join(' ; ')}',
+        authorId: authorId,
+      );
+    } catch (_) {
+      // Best-effort.
     }
   }
 
