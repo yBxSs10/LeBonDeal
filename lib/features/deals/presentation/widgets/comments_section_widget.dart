@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../comments/data/models/comment.dart';
+import '../../../comments/domain/domain.dart';
 import 'comment_form_widget.dart';
 import 'comment_item_widget.dart';
 
@@ -13,7 +13,7 @@ class CommentsSectionWidget extends StatelessWidget {
     required this.onSubmitComment,
   });
 
-  final List<Comment> comments;
+  final List<CommentEntity> comments;
   final int commentCount;
   final bool isLoadingComments;
   final bool isSubmittingComment;

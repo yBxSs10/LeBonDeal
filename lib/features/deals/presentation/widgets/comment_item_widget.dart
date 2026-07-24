@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../comments/data/models/comment.dart';
+import '../../../comments/domain/domain.dart';
 
 class CommentItemWidget extends StatelessWidget {
   const CommentItemWidget({super.key, required this.comment});
 
-  final Comment comment;
+  final CommentEntity comment;
 
   @override
   Widget build(BuildContext context) {

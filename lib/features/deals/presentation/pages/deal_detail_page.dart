@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../comments/data/models/comment.dart';
+import '../../../comments/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 import '../../data/datasources/remote/firestore_service.dart';
 import '../widgets/deal_image_widget.dart';
@@ -117,14 +117,20 @@ class _DealDetailPageState extends State<DealDetailPage> {
 
     setState(() => _isSubmittingComment = true);
     try {
-      final comment = Comment(
-        id: '',
+      final result = await AddCommentUseCase(getIt<CommentRepository>())(
         dealId: widget.deal.id,
-        author: _user!.displayName ?? _user!.email ?? 'Utilisateur',
+        authorId: _user!.uid,
+        authorName: _user!.displayName ?? _user!.email ?? 'Utilisateur',
         content: content,
-        createdAt: DateTime.now(),
       );
-      await getIt<FirestoreService>().addComment(comment, _user!.uid);
+      if (mounted) {
+        result.fold(
+          (error) => ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error))),
+          (_) {},
+        );
+      }
     } finally {
       if (mounted) setState(() => _isSubmittingComment = false);
     }
@@ -177,8 +183,8 @@ class _DealDetailPageState extends State<DealDetailPage> {
               canVote: _canVote,
             ),
             DealInfoWidget(deal: widget.deal),
-            StreamBuilder<List<Comment>>(
-              stream: getIt<FirestoreService>().getCommentsStream(
+            StreamBuilder<List<CommentEntity>>(
+              stream: GetCommentsUseCase(getIt<CommentRepository>())(
                 widget.deal.id,
               ),
               builder: (context, snapshot) {
