@@ -49,7 +49,7 @@ jobs:
         with:
           name: coverage-report
           path: coverage/lcov.info
-          retention-days: 30
+          retention-days: 7
 
       # 9. Vérifier que les dépendances de monitoring sont présentes
       - name: Verify monitoring dependencies
@@ -90,4 +90,4 @@ jobs:
         with:
           name: lebondeal-apk-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 30
+          retention-days: 7

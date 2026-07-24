@@ -62,7 +62,7 @@ Pipeline GitHub Actions (`.github/workflows/ci.yml`), déclenché sur push (`mai
  
 ```
 checkout → flutter setup → pub get → format → analyze → test (98, bloquant) → coverage → upload artifact → verify monitoring deps
-      └── job build (si test ✅) : APK debug → artefact GitHub Actions (30 jours)
+      └── job build (si test ✅) : APK debug → artefact GitHub Actions (7 jours)
 ```
  
 Développement actuellement en solo (push direct sur `main`) ; le pipeline sert de garde-fou avant chaque évolution. Le modèle `develop`/`feature`/`hotfix` est déjà pris en charge par la CI, en anticipation d'une équipe à plusieurs contributeurs.
