@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
-import 'package:lebondeal/features/reports/data/models/report.dart';
+import 'package:lebondeal/features/reports/domain/domain.dart';
 
 class ModerationPage extends StatefulWidget {
   const ModerationPage({super.key});
@@ -15,8 +15,8 @@ class ModerationPage extends StatefulWidget {
 class _ModerationPageState extends State<ModerationPage> {
   bool _showResolved = false;
 
-  Future<void> _dismiss(Report report) async {
-    await getIt<FirestoreService>().resolveReport(report.id);
+  Future<void> _dismiss(ReportEntity report) async {
+    await ResolveReportUseCase(getIt<ReportRepository>())(report.id);
     if (mounted) {
       ScaffoldMessenger.of(
         context,
@@ -24,7 +24,7 @@ class _ModerationPageState extends State<ModerationPage> {
     }
   }
 
-  Future<void> _deleteTarget(Report report) async {
+  Future<void> _deleteTarget(ReportEntity report) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -47,11 +47,10 @@ class _ModerationPageState extends State<ModerationPage> {
     );
     if (confirmed != true) return;
 
-    final service = getIt<FirestoreService>();
     if (report.targetType == 'deal') {
-      await service.deleteDeal(report.targetId);
+      await getIt<FirestoreService>().deleteDeal(report.targetId);
     }
-    await service.resolveReport(report.id);
+    await ResolveReportUseCase(getIt<ReportRepository>())(report.id);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -89,8 +88,8 @@ class _ModerationPageState extends State<ModerationPage> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Report>>(
-              stream: getIt<FirestoreService>().getReportsStream(),
+            child: StreamBuilder<List<ReportEntity>>(
+              stream: GetReportsUseCase(getIt<ReportRepository>())(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const LoadingWidget();

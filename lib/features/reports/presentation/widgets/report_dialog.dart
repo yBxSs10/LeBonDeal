@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/reports/domain/domain.dart';
 
 const _reportReasons = [
   'Deal frauduleux',
@@ -30,7 +30,7 @@ Future<void> showReportDealDialog(
   );
   if (reason == null || !context.mounted) return;
 
-  await getIt<FirestoreService>().createReport(
+  await CreateReportUseCase(getIt<ReportRepository>())(
     targetId: dealId,
     targetType: 'deal',
     targetTitle: dealTitle,

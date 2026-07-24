@@ -6,6 +6,7 @@ import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
 import 'package:lebondeal/features/deals/domain/services/spam_detector.dart';
+import 'package:lebondeal/features/reports/domain/domain.dart';
 
 class AddDealBloc extends ChangeNotifier {
   final _formKey = GlobalKey<FormState>();
@@ -117,7 +118,7 @@ class AddDealBloc extends ChangeNotifier {
     if (!check.isSuspicious) return;
 
     try {
-      await getIt<FirestoreService>().createReport(
+      await CreateReportUseCase(getIt<ReportRepository>())(
         targetId: dealId,
         targetType: 'deal',
         targetTitle: deal.title,

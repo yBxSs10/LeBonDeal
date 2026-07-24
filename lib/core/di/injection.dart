@@ -6,6 +6,7 @@ import '../../features/auth/di/auth_di.dart';
 import '../../features/deals/di/deals_di.dart';
 import '../../features/categories/di/categories_di.dart';
 import '../../features/comments/di/comments_di.dart';
+import '../../features/reports/di/reports_di.dart';
 
 final getIt = GetIt.instance;
 
@@ -29,4 +30,7 @@ void configureDependencies() {
 
   // Configurer les dépendances commentaires
   configureCommentsDependencies();
+
+  // Configurer les dépendances signalements
+  configureReportsDependencies();
 }
