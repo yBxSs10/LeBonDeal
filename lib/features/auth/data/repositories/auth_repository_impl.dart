@@ -137,6 +137,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<String, UserEntity>> signInAnonymously() async {
+    try {
+      final userCredential = await _firebaseAuth.signInAnonymously();
+      return Right(userCredential.user!.toUserEntity());
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return Left(_mapAuthExceptionToMessage(e));
+    } catch (e) {
+      return const Left('Une erreur inattendue est survenue');
+    }
+  }
+
+  @override
   Future<Either<String, Unit>> signOut() async {
     try {
       await _firebaseAuth.signOut();

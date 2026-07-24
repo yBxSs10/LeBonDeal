@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/services/notification_service.dart';
-import 'package:lebondeal/features/auth/domain/repositories/auth_repository.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
+import 'package:lebondeal/features/profile/domain/domain.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
@@ -36,9 +36,9 @@ class AuthProvider with ChangeNotifier {
   // appareil. Best-effort : ne doit jamais bloquer le flux d'authentification.
   Future<void> _syncNotificationSubscriptions(String userId) async {
     try {
-      final categoryIds = await getIt<FirestoreService>()
-          .getFollowedCategoryIdsStream(userId)
-          .first;
+      final categoryIds = await GetFollowedCategoryIdsUseCase(
+        getIt<ProfileRepository>(),
+      )(userId).first;
       await NotificationService.instance.syncFollowedCategories(categoryIds);
     } catch (e) {
       debugPrint('FCM: échec de la resynchronisation des abonnements — $e');
@@ -50,47 +50,54 @@ class AuthProvider with ChangeNotifier {
       _setLoading(true);
       _error = null;
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final result = await SignInWithEmailAndPassword(getIt<AuthRepository>())(
         email: email,
         password: password,
       );
-    } on FirebaseAuthException catch (e) {
-      _error = _getErrorMessage(e.code);
-      rethrow;
+      result.fold((error) {
+        _error = error;
+        throw Exception(error);
+      }, (_) {});
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(String email, String password, String displayName) async {
     try {
       _setLoading(true);
       _error = null;
 
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final result = await SignUpWithEmailAndPassword(getIt<AuthRepository>())(
         email: email,
         password: password,
+        displayName: displayName,
       );
-    } on FirebaseAuthException catch (e) {
-      _error = _getErrorMessage(e.code);
-      rethrow;
+      result.fold((error) {
+        _error = error;
+        throw Exception(error);
+      }, (_) {});
     } finally {
       _setLoading(false);
     }
   }
 
   Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
+    await SignOut(getIt<AuthRepository>())();
   }
 
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       _setLoading(true);
       _error = null;
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      _error = _getErrorMessage(e.code);
-      rethrow;
+
+      final result = await SendPasswordResetEmail(getIt<AuthRepository>())(
+        email,
+      );
+      result.fold((error) {
+        _error = error;
+        throw Exception(error);
+      }, (_) {});
     } finally {
       _setLoading(false);
     }
@@ -113,10 +120,11 @@ class AuthProvider with ChangeNotifier {
       _setLoading(true);
       _error = null;
 
-      await FirebaseAuth.instance.signInAnonymously();
-    } on FirebaseAuthException catch (e) {
-      _error = _getErrorMessage(e.code);
-      rethrow;
+      final result = await SignInAnonymously(getIt<AuthRepository>())();
+      result.fold((error) {
+        _error = error;
+        throw Exception(error);
+      }, (_) {});
     } finally {
       _setLoading(false);
     }
@@ -125,22 +133,5 @@ class AuthProvider with ChangeNotifier {
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
-  }
-
-  String _getErrorMessage(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'Aucun utilisateur trouvé avec cet email.';
-      case 'wrong-password':
-        return 'Mot de passe incorrect.';
-      case 'email-already-in-use':
-        return 'Cet email est déjà utilisé.';
-      case 'weak-password':
-        return 'Le mot de passe est trop faible.';
-      case 'invalid-email':
-        return 'Adresse email invalide.';
-      default:
-        return 'Une erreur est survenue. Veuillez réessayer.';
-    }
   }
 }

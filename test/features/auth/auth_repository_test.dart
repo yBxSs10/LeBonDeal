@@ -155,5 +155,25 @@ void main() {
         expect(repo.authStateChanges, emitsThrough(isNotNull));
       },
     );
+
+    // -------------------------------------------------------
+    // AUTH-007 : signInAnonymously retourne un UserEntity anonyme
+    // -------------------------------------------------------
+    test('AUTH-007 : signInAnonymously retourne Right(UserEntity)', () async {
+      // ARRANGE
+      final mockAuth = MockFirebaseAuth(signedIn: false);
+      final repo = AuthRepositoryImpl(firebaseAuth: mockAuth);
+
+      // ACT
+      final result = await repo.signInAnonymously();
+
+      // ASSERT
+      expect(result.isRight(), true);
+      result.fold((error) => fail('Ne devrait pas retourner une erreur'), (
+        user,
+      ) {
+        expect(user.id, isNotEmpty);
+      });
+    });
   });
 }

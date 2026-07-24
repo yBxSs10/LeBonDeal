@@ -24,6 +24,9 @@ abstract class AuthRepository {
   // Se connecter (ou s'inscrire) avec un compte Google
   Future<Either<String, UserEntity>> signInWithGoogle();
 
+  // Se connecter en tant qu'invité (compte anonyme Firebase)
+  Future<Either<String, UserEntity>> signInAnonymously();
+
   // Se déconnecter
   Future<Either<String, Unit>> signOut();
 
