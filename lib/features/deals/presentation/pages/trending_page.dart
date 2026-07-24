@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/shared/common_widgets.dart';
-import '../../data/datasources/remote/firestore_service.dart';
-import '../../domain/entities/deal.dart';
+import '../../domain/domain.dart';
 import '../widgets/deal_card.dart';
 
 class TrendingPage extends StatelessWidget {
@@ -14,7 +13,7 @@ class TrendingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Tendances')),
       body: StreamBuilder<List<Deal>>(
-        stream: getIt<FirestoreService>().getTrendingDealsStream(),
+        stream: GetTrendingDealsUseCase(getIt<DealRepository>())(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingWidget();

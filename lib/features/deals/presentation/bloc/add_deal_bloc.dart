@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
-import 'package:lebondeal/features/deals/domain/entities/deal.dart';
+import 'package:lebondeal/features/deals/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/services/spam_detector.dart';
 import 'package:lebondeal/features/reports/domain/domain.dart';
 
@@ -49,37 +48,6 @@ class AddDealBloc extends ChangeNotifier {
 
   bool validateForm() => _formKey.currentState?.validate() ?? false;
 
-  Deal _buildDeal() {
-    final price = double.parse(_priceController.text.trim());
-    final origText = _originalPriceController.text.trim();
-    final originalPrice = origText.isNotEmpty ? double.parse(origText) : price;
-    final discountPercent = originalPrice > price
-        ? ((originalPrice - price) / originalPrice * 100).round()
-        : 0;
-    final user = auth.FirebaseAuth.instance.currentUser!;
-
-    return Deal(
-      id: '',
-      title: _titleController.text.trim(),
-      description: _descriptionController.text.trim(),
-      imageUrl: _imageUrlController.text.trim().isEmpty
-          ? 'https://via.placeholder.com/300x200'
-          : _imageUrlController.text.trim(),
-      storeName: _storeNameController.text.trim(),
-      price: price,
-      originalPrice: originalPrice,
-      discountPercent: discountPercent,
-      author: user.displayName ?? 'Utilisateur',
-      authorId: user.uid,
-      publishedHoursAgo: 0,
-      badge: discountPercent > 50 ? 'HOT' : 'NEW',
-      comments: 0,
-      favorites: 0,
-      shares: 0,
-      categoryId: _selectedCategoryId!,
-    );
-  }
-
   Future<void> submitDeal([VoidCallback? onDealAdded]) async {
     if (!validateForm()) return;
 
@@ -93,9 +61,21 @@ class AddDealBloc extends ChangeNotifier {
 
     setSubmitting(true);
     try {
-      final deal = _buildDeal();
-      final dealRef = await getIt<FirestoreService>().addDeal(deal);
-      await _flagIfSuspicious(dealRef.id, deal, user.uid);
+      final price = double.parse(_priceController.text.trim());
+      final origText = _originalPriceController.text.trim();
+
+      final result = await CreateDealUseCase(getIt<DealRepository>())(
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        storeName: _storeNameController.text.trim(),
+        price: price,
+        originalPrice: origText.isNotEmpty ? double.parse(origText) : null,
+        categoryId: _selectedCategoryId!,
+        imageUrl: _imageUrlController.text.trim(),
+      );
+      final deal = result.fold((error) => throw Exception(error), (d) => d);
+
+      await _flagIfSuspicious(deal.id, deal, user.uid);
       onDealAdded?.call();
     } finally {
       setSubmitting(false);

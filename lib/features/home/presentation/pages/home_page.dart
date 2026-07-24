@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
@@ -34,15 +33,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _dealsStream = getIt<FirestoreService>().getAllDealsStream();
+    _dealsStream = GetAllDealsUseCase(getIt<DealRepository>())();
     _listenToSavedDeals();
   }
 
   void _listenToSavedDeals() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return;
-    _savedSub = getIt<FirestoreService>()
-        .getSavedDealIdsStream(user.uid)
+    _savedSub = GetSavedDealIdsUseCase(getIt<DealRepository>())(user.uid)
         .listen((ids) {
           if (mounted) setState(() => _savedDealIds = ids);
         });
@@ -59,10 +57,10 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedCategory = alreadySelected ? null : category;
       _dealsStream = _selectedCategory != null
-          ? getIt<FirestoreService>().getDealsByCategoryStream(
+          ? GetDealsByCategoryUseCase(getIt<DealRepository>())(
               _selectedCategory!.id,
             )
-          : getIt<FirestoreService>().getAllDealsStream();
+          : GetAllDealsUseCase(getIt<DealRepository>())();
     });
   }
 
@@ -156,7 +154,11 @@ class _HomePageState extends State<HomePage> {
   Future<void> _toggleSave(String dealId, bool isSaved) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.isAnonymous) return;
-    await getIt<FirestoreService>().toggleSavedDeal(user.uid, dealId, isSaved);
+    await ToggleSavedDealUseCase(getIt<DealRepository>())(
+      user.uid,
+      dealId,
+      isSaved,
+    );
   }
 
   @override
@@ -299,7 +301,7 @@ class _HomePageState extends State<HomePage> {
             child: CustomErrorWidget(
               message: 'Erreur de chargement',
               onRetry: () => setState(() {
-                _dealsStream = getIt<FirestoreService>().getAllDealsStream();
+                _dealsStream = GetAllDealsUseCase(getIt<DealRepository>())();
               }),
             ),
           );

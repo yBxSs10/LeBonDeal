@@ -7,7 +7,6 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/injection.dart';
 import '../../../comments/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
-import '../../data/datasources/remote/firestore_service.dart';
 import '../widgets/deal_image_widget.dart';
 import '../widgets/deal_temperature_widget.dart';
 import '../widgets/deal_info_widget.dart';
@@ -58,7 +57,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
 
   void _subscribeToTemperature() {
     // Stream direct sur le deal — température + favoris + partages en temps réel
-    _dealSub = getIt<FirestoreService>().getDealStream(widget.deal.id).listen((
+    _dealSub = GetDealUseCase(getIt<DealRepository>())(widget.deal.id).listen((
       deal,
     ) {
       if (mounted && deal != null) {
@@ -72,9 +71,11 @@ class _DealDetailPageState extends State<DealDetailPage> {
 
     // Stream sur le vote de l'utilisateur courant
     if (_canVote) {
-      _userVoteSub = getIt<FirestoreService>()
-          .getUserVoteStream(_user!.uid, widget.deal.id)
-          .listen((v) {
+      _userVoteSub =
+          GetUserVoteUseCase(getIt<DealRepository>())(
+            _user!.uid,
+            widget.deal.id,
+          ).listen((v) {
             if (mounted) setState(() => _userVote = v);
           });
     }
@@ -82,15 +83,15 @@ class _DealDetailPageState extends State<DealDetailPage> {
 
   Future<void> _loadSavedState() async {
     if (!_canVote) return;
-    final ids = await getIt<FirestoreService>()
-        .getSavedDealIdsStream(_user!.uid)
-        .first;
+    final ids = await GetSavedDealIdsUseCase(getIt<DealRepository>())(
+      _user!.uid,
+    ).first;
     if (mounted) setState(() => _isSaved = ids.contains(widget.deal.id));
   }
 
   Future<void> _toggleSave() async {
     if (!_canVote) return;
-    await getIt<FirestoreService>().toggleSavedDeal(
+    await ToggleSavedDealUseCase(getIt<DealRepository>())(
       _user!.uid,
       widget.deal.id,
       _isSaved,
@@ -100,7 +101,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
 
   Future<void> _vote(int value) async {
     if (!_canVote) return;
-    await getIt<FirestoreService>().voteOnDeal(
+    await VoteOnDealUseCase(getIt<DealRepository>())(
       _user!.uid,
       widget.deal.id,
       value,

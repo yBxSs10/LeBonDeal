@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/deals/domain/domain.dart';
 import 'package:lebondeal/features/reports/domain/domain.dart';
 
 class ModerationPage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _ModerationPageState extends State<ModerationPage> {
     if (confirmed != true) return;
 
     if (report.targetType == 'deal') {
-      await getIt<FirestoreService>().deleteDeal(report.targetId);
+      await DeleteDealUseCase(getIt<DealRepository>())(report.targetId);
     }
     await ResolveReportUseCase(getIt<ReportRepository>())(report.id);
 
