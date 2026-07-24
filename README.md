@@ -230,14 +230,14 @@ Consultez l'onglet **Actions** du dépôt pour l'historique des exécutions.
 
 ## 📦 Fichiers de configuration
 
-### Fichiers sensibles (non versionnés)
+### Fichiers de configuration Firebase
 
 ```
-# Firebase — à obtenir depuis la Firebase Console
 android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 ```
+
+> Ces fichiers **sont bien versionnés** dans ce dépôt (contrairement à ce qu'indiquait une version précédente de ce README) : les clés qu'ils contiennent sont des identifiants client publics, pas des secrets — la protection réelle vient de `firestore.rules`, pas de leur confidentialité. `ios/Runner/GoogleService-Info.plist` n'existe pas dans ce projet (build iOS non configuré, développement fait sur Android via émulateur).
 
 > Ces fichiers contiennent les clés API Firebase et ne sont pas inclus dans le dépôt.
 
@@ -264,7 +264,7 @@ firebase deploy --only firestore:rules
 
 ### ✅ Implémentées
 
-- **Authentification** — email/mot de passe, inscription, connexion anonyme (invité)
+- **Authentification** — email/mot de passe, Google Sign-In, inscription, connexion anonyme (invité)
 - **Liste des deals** — affichage, recherche temps réel, filtre par catégorie
 - **Détail d'un deal** — description, prix barré, remise, commentaires
 - **Publication** — formulaire de création de deal (utilisateurs authentifiés uniquement)
@@ -315,7 +315,7 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 
 | Fonctionnalité | Priorité | User story | Statut | Preuve |
 |---|---|---|---|---|
-| Authentification | MUST | Je veux m'inscrire via email ou Google | ⚠️ Partiel | `features/auth/` : email/mot de passe opérationnel ; connexion Google non implémentée |
+| Authentification | MUST | Je veux m'inscrire via email ou Google | ✅ | Email/mot de passe + Google Sign-In (`google_sign_in` v6, `GoogleAuthProvider`), profil Firestore créé à la première connexion sans écraser un rôle existant, vérifié sur émulateur (empreinte SHA-1 debug enregistrée sur Firebase Console) |
 | Création et publication d'un deal | MUST | Je veux poster un deal avec titre, prix, lien et image | ✅ | `add_deal_page.dart`, `add_deal_bloc.dart`, tests BLOC-001 à 005 |
 | Consultation des deals (feed) | MUST | Je veux voir les meilleurs deals triés par popularité | ✅ | `home_page.dart`, `trending_page.dart`, tests DEAL-012 |
 | Upvote / Downvote | MUST | Je veux voter pour évaluer la qualité d'un deal | ✅ | Sous-collection `votes` (`firestore.rules`), tests DEAL-014/015 |
@@ -331,7 +331,7 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 
-**Bilan** : 6/8 MUST pleinement couverts, 1/8 partiel (Google Sign-In), 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie) ; 3/3 SHOULD pleinement couverts (signalement, modération, détection de spam) et testés de bout en bout ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
+**Bilan** : 7/8 MUST pleinement couverts, 1/8 avec code complet mais non déployé (ciblage des notifications par catégorie, décision assumée — cf. section dédiée) ; 3/3 SHOULD pleinement couverts (signalement, modération, détection de spam) et testés de bout en bout ; les COULD sont couverts pour l'UX et les tests, non couverts pour la recommandation et les alertes prix — cohérent avec leur priorité la plus basse.
 
 Le ciblage des notifications par catégorie est entièrement codé et testé (client + Cloud Function via émulateurs) mais nécessite un `firebase deploy --only functions` pour être actif en production — cette étape n'a pas été effectuée pour ne pas modifier le projet Firebase partagé sans validation explicite.
 

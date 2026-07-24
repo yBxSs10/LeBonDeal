@@ -5,6 +5,17 @@ Format : [version] — date — description
 
 ---
 
+## [1.2.0] — 2026-07-24
+
+### Ajouté
+- Connexion et inscription avec Google (`google_sign_in` ^6.2.1, `GoogleAuthProvider`) sur les écrans login et inscription — profil Firestore créé uniquement à la première connexion (`additionalUserInfo.isNewUser`), pour ne pas écraser le rôle `moderator`/`admin` d'un utilisateur existant qui se connecterait via Google
+- Empreinte SHA-1 du keystore de debug enregistrée sur Firebase Console (requis par Android pour Google Sign-In), `google-services.json` mis à jour en conséquence
+
+### Corrigé
+- `register_page.dart` avait le même défaut de navigation manuelle que le correctif précédent sur `login_page.dart` : `Navigator.pushReplacement` vers `HomePage()` après inscription réussie, au lieu de laisser `_AuthGate` gérer la transition — l'utilisateur atterrissait sur un écran sans barre de navigation. Remplacé par un retour à la racine (`popUntil`)
+
+---
+
 ## [1.1.0] — 2026-07-23
 
 ### Ajouté

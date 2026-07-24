@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1043144726360-57fi0himp6vop7nv54kb60h8s7h879ol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lebondeal",
+            "certificate_hash": "bc4e68fe3538b378438230dd21a7b3cae4bf8ad3"
+          }
+        },
+        {
           "client_id": "1043144726360-o3tnocnq2otkncrm63tr36mvk4ka0jtn.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "1043144726360-o3tnocnq2otkncrm63tr36mvk4ka0jtn.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1043144726360-4cb4ghvdgv8k2jo1t4bii6vv0d2o5aif.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lebondeal"
+              }
             }
           ]
         }

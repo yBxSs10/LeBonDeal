@@ -3,36 +3,61 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 
 class LoginSocialButtons extends StatelessWidget {
-  const LoginSocialButtons({super.key});
+  const LoginSocialButtons({super.key, this.onGooglePressed});
+
+  final VoidCallback? onGooglePressed;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        _SocialButton(label: 'Google', brandLetter: 'G'),
-        SizedBox(height: 12),
-        _SocialButton(label: 'Facebook', brandLetter: 'f'),
-        SizedBox(height: 12),
-        _SocialButton(label: 'Apple', brandLetter: ''),
+        _SocialButton(
+          label: 'Google',
+          brandLetter: 'G',
+          onPressed:
+              onGooglePressed ??
+              () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Connexion Google à implémenter')),
+              ),
+        ),
+        const SizedBox(height: 12),
+        _SocialButton(
+          label: 'Facebook',
+          brandLetter: 'f',
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Connexion Facebook à implémenter')),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _SocialButton(
+          label: 'Apple',
+          brandLetter: '',
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Connexion Apple à implémenter')),
+          ),
+        ),
       ],
     );
   }
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.label, required this.brandLetter});
+  const _SocialButton({
+    required this.label,
+    required this.brandLetter,
+    required this.onPressed,
+  });
 
   final String label;
   final String brandLetter;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Connexion $label à implémenter')),
-        ),
+        onPressed: onPressed,
         icon: Text(
           brandLetter,
           style: const TextStyle(

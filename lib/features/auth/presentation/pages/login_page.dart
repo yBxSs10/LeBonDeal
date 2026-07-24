@@ -145,6 +145,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> _handleGoogleLogin(AuthProvider authProvider) async {
+    // La navigation vers MainNavigation est gérée par _AuthGate (app.dart) ;
+    // signInWithGoogle() ne relance jamais d'exception (erreur exposée via
+    // authProvider.error), donc pas de try/catch nécessaire ici.
+    await authProvider.signInWithGoogle();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -230,7 +237,9 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16.0),
                 const LoginDivider(),
                 const SizedBox(height: 24.0),
-                const LoginSocialButtons(),
+                LoginSocialButtons(
+                  onGooglePressed: () => _handleGoogleLogin(authProvider),
+                ),
                 const SizedBox(height: 24.0),
                 const LoginBottomCta(),
                 const SizedBox(height: 32.0),

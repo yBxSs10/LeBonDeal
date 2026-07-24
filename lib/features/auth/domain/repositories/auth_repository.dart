@@ -21,6 +21,9 @@ abstract class AuthRepository {
     required String displayName,
   });
 
+  // Se connecter (ou s'inscrire) avec un compte Google
+  Future<Either<String, UserEntity>> signInWithGoogle();
+
   // Se déconnecter
   Future<Either<String, Unit>> signOut();
 

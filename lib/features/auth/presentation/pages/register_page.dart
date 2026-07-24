@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection.dart';
-import '../../../home/presentation/pages/home_page.dart';
 import '../../domain/domain.dart';
 import '../widgets/register/register_bottom_cta.dart';
 import '../widgets/register/register_divider.dart';
@@ -73,12 +72,38 @@ class _RegisterPageState extends State<RegisterPage> {
         },
         (user) {
           if (!mounted) return;
-          Navigator.pushReplacement(
+          // RegisterPage a été empilée par-dessus _AuthGate (app.dart), qui
+          // a déjà basculé vers MainNavigation dès la connexion réussie
+          // (authStateChanges) — il suffit de revenir à la racine plutôt que
+          // de pousser HomePage() manuellement (ce qui affichait un écran
+          // sans barre de navigation).
+          Navigator.of(
             context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
+            rootNavigator: true,
+          ).popUntil((route) => route.isFirst);
         },
       );
+    } catch (e) {
+      _showMessage('Une erreur inattendue est survenue');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    if (!mounted) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final result = await _authRepository.signInWithGoogle();
+      result.fold((error) => _showMessage(error), (user) {
+        if (!mounted) return;
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).popUntil((route) => route.isFirst);
+      });
     } catch (e) {
       _showMessage('Une erreur inattendue est survenue');
     } finally {
@@ -135,8 +160,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const RegisterDivider(),
                   const SizedBox(height: 16),
                   RegisterSocialButtons(
-                    onGooglePressed: () =>
-                        _showMessage('Connexion avec Google à implémenter'),
+                    onGooglePressed: _handleGoogleSignIn,
                     onFacebookPressed: () =>
                         _showMessage('Connexion avec Facebook à implémenter'),
                   ),

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/services/notification_service.dart';
+import 'package:lebondeal/features/auth/domain/repositories/auth_repository.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -90,6 +91,18 @@ class AuthProvider with ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       _error = _getErrorMessage(e.code);
       rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      _setLoading(true);
+      _error = null;
+
+      final result = await getIt<AuthRepository>().signInWithGoogle();
+      result.fold((error) => _error = error, (_) {});
     } finally {
       _setLoading(false);
     }
