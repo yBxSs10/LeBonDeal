@@ -13,37 +13,39 @@ class CategoryChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onTap;
 
-  // Couleur par défaut pour les catégories
-  Color get _defaultColor => Colors.blue;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? _defaultColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _defaultColor, width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              category.icon,
-              size: 16,
-              color: isSelected ? Colors.white : category.color,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              category.name,
-              style: TextStyle(
-                color: isSelected ? Colors.white : _defaultColor,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    return Semantics(
+      label: '${category.name}${isSelected ? ', sélectionné' : ''}',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? category.color : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: category.color, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                category.icon,
+                size: 16,
+                color: isSelected ? Colors.white : category.color,
               ),
-            ),
-          ],
+              const SizedBox(width: 6),
+              Text(
+                category.name,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : category.color,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

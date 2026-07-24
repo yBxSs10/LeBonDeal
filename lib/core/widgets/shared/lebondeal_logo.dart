@@ -13,6 +13,7 @@ class LebonDealLogo extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.white,
+        border: Border.all(color: Colors.black.withOpacity(0.15)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),

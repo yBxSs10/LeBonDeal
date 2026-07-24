@@ -94,21 +94,32 @@ class _VoteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isActive ? activeColor : Colors.grey[400]!;
-    return Tooltip(
-      message: enabled ? tooltip : 'Connectez-vous pour voter',
-      child: InkWell(
-        onTap: enabled ? onTap : null,
-        borderRadius: BorderRadius.circular(24),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isActive
-                ? activeColor.withValues(alpha: 0.15)
-                : Colors.transparent,
+    return Semantics(
+      button: true,
+      label: enabled ? tooltip : 'Connectez-vous pour voter',
+      selected: isActive,
+      child: Tooltip(
+        message: enabled ? tooltip : 'Connectez-vous pour voter',
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(24),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isActive
+                      ? activeColor.withValues(alpha: 0.15)
+                      : Colors.transparent,
+                ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+            ),
           ),
-          child: Icon(icon, color: color, size: 28),
         ),
       ),
     );

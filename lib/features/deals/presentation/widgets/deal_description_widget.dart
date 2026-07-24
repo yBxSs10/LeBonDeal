@@ -22,7 +22,7 @@ class DealDescriptionWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Posté par ' + deal.author,
-            style: TextStyle(fontSize: 14, color: Colors.grey),
+            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
           ),
         ],
       ),

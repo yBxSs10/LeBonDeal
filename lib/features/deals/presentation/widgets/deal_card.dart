@@ -97,7 +97,7 @@ class DealCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: Colors.red[700],
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

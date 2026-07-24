@@ -31,16 +31,20 @@ class DealStatsWidget extends StatelessWidget {
   }
 
   Widget _buildStatItem(IconData icon, String count, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: Colors.grey[600]),
-        const SizedBox(height: 4),
-        Text(
-          count,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-      ],
+    return Semantics(
+      label: '$count $label',
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          Icon(icon, size: 24, color: Colors.grey[600]),
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        ],
+      ),
     );
   }
 }

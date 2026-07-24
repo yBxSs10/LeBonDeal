@@ -145,10 +145,12 @@ class _DealDetailPageState extends State<DealDetailPage> {
         actions: [
           IconButton(
             icon: Icon(_isSaved ? Icons.favorite : Icons.favorite_border),
+            tooltip: _isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris',
             onPressed: _toggleSave,
           ),
           IconButton(
             icon: const Icon(Icons.share),
+            tooltip: 'Partager ce deal',
             onPressed: () {
               SharePlus.instance.share(
                 ShareParams(

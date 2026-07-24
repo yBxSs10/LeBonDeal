@@ -1,10 +1,10 @@
-// WIDGET-021 à WIDGET-024 — Tests widget du composant CategoryChip (home)
+// WIDGET-021 à WIDGET-024 — Tests widget du composant CategoryChip
 // RNCP39583 — C2.2.2 : couverture de la couche presentation
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lebondeal/features/categories/data/models/category.dart';
-import 'package:lebondeal/features/home/presentation/widgets/category_chip.dart';
+import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/categories/presentation/widgets/category_chip.dart';
 
 const _category = Category(
   id: 'high-tech',
@@ -16,7 +16,7 @@ const _category = Category(
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
-  group('CategoryChip (home) —', () {
+  group('CategoryChip —', () {
     testWidgets('WIDGET-021 : affiche le nom de la catégorie', (tester) async {
       await tester.pumpWidget(_wrap(const CategoryChip(category: _category)));
 

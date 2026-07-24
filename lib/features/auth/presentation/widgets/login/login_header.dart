@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../lebondeal_logo.dart';
+import '../../../../../core/widgets/shared/lebondeal_logo.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});

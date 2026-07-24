@@ -27,10 +27,10 @@ class DealInfoWidget extends StatelessWidget {
             children: [
               Text(
                 deal.priceLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Colors.green[800],
                 ),
               ),
               if (deal.discountPercent > 0) ...[
@@ -50,7 +50,7 @@ class DealInfoWidget extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Colors.red[700],
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
