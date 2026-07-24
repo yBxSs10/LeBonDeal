@@ -58,7 +58,7 @@ En parallèle : déploiement du backend
 |---|---|---|
 | Formatage | `dart format` | Bloquant si écart |
 | Analyse statique | `flutter analyze` | Bloquant si warning fatal |
-| Tests unitaires | `flutter test` | 85/85 obligatoires |
+| Tests unitaires | `flutter test` | 98/98 obligatoires |
 | Couverture de code | lcov | Rapport généré à chaque CI |
 | Crashs production | Firebase Crashlytics | Alerte automatique |
 | Performance réseau | Firebase Performance | Suivi des temps de réponse |
@@ -133,7 +133,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **85 tests** (55 unitaires domain/data + 30 widget presentation) couvrant l'authentification, les deals, la sécurité et la couche présentation.
+Le projet contient **98 tests** (68 unitaires domain/data + 30 widget presentation) couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -152,16 +152,22 @@ flutter test --coverage
 ✅ USER-001 à USER-007   — Entité UserEntity (sérialisation, égalité)
 ✅ AUTH-001 à AUTH-005   — Repository d'authentification Firebase
 ✅ AUTH-006             — Création du profil Firestore (email, displayName, role) à l'inscription
-✅ AUTH-P01 à AUTH-P06   — Mapping des codes d'erreur Firebase
+✅ AUTH-007             — Connexion anonyme (invité)
+✅ AUTH-P01 à AUTH-P07   — Mapping des codes d'erreur Firebase (AuthRepository)
+✅ CAT-001              — CategoryRepository (catégories statiques)
+✅ COM-001 à COM-002     — CommentRepository (ajout, lecture)
+✅ REP-001 à REP-003     — ReportRepository (création, résolution, lecture)
+✅ PROF-001 à PROF-002   — ProfileRepository (rôle, catégories suivies)
 ✅ DEAL-001 à DEAL-005   — Entité Deal (copyWith, formatage)
-✅ DEAL-006 à DEAL-009   — Persistance Firestore + garde utilisateur anonyme
+✅ DEAL-006 à DEAL-009   — CreateDealUseCase + garde utilisateur anonyme
 ✅ DEAL-010 à DEAL-018   — FirestoreService (vote, favoris, commentaires, streams)
 ✅ DEAL-019 à DEAL-020   — Ancienneté formatée (timeAgoLabel) et expiration du badge NEW
+✅ DEAL-021 à DEAL-024   — DealRepository (création, suppression, vote, streams)
 ✅ BLOC-001 à BLOC-005   — AddDealBloc (état, catégories, notifications)
 ✅ SEC-001  à SEC-005    — Validation et règles de sécurité
 ✅ SEC-006  à SEC-010    — Détection automatique de spam (SpamDetector)
 
-+55: All tests passed!
++98: All tests passed!
 ```
 
 ### Fichiers de tests
@@ -170,12 +176,21 @@ flutter test --coverage
 test/
 ├── features/auth/
 │   ├── user_entity_test.dart          # USER-001 à USER-007
-│   ├── auth_repository_test.dart      # AUTH-001 à AUTH-006
-│   └── auth_provider_test.dart        # AUTH-P01 à AUTH-P06
+│   ├── auth_repository_test.dart      # AUTH-001 à AUTH-007
+│   └── auth_provider_test.dart        # AUTH-P01 à AUTH-P07
+├── features/categories/
+│   └── category_repository_test.dart  # CAT-001
+├── features/comments/
+│   └── comment_repository_test.dart   # COM-001 à COM-002
+├── features/reports/
+│   └── report_repository_test.dart    # REP-001 à REP-003
+├── features/profile/
+│   └── profile_repository_test.dart   # PROF-001 à PROF-002
 ├── features/deals/
 │   ├── deal_entity_test.dart          # DEAL-001 à DEAL-005, DEAL-019 à DEAL-020
 │   ├── create_deal_usecase_test.dart  # DEAL-006 à DEAL-009
 │   ├── firestore_service_test.dart    # DEAL-010 à DEAL-018
+│   ├── deal_repository_test.dart      # DEAL-021 à DEAL-024
 │   └── add_deal_bloc_test.dart        # BLOC-001 à BLOC-005
 └── features/security/
     ├── deal_validation_test.dart      # SEC-001 à SEC-005
@@ -188,7 +203,7 @@ test/
 
 ### Protocole de branches
 
-Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 85 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 98 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
 ```
 Développement local
@@ -218,7 +233,7 @@ Le pipeline GitHub Actions se déclenche automatiquement :
 3. Install dependencies   — flutter pub get
 4. Check formatting       — dart format (bloquant si écart)
 5. Analyze code           — flutter analyze (lint statique)
-6. Run unit tests         — 85 tests (bloquant si échec)
+6. Run unit tests         — 98 tests (bloquant si échec)
 7. Run tests with coverage— génération rapport lcov
 8. Upload coverage        — artifact 30 jours
 9. Verify monitoring deps — vérification Crashlytics + Performance
@@ -296,14 +311,15 @@ firebase deploy --only firestore:rules
 lib/
 ├── core/                    # DI (GetIt), thème Material 3, navigation
 └── features/
-    ├── auth/                # Clean Architecture : domain / data / presentation
-    ├── deals/               # Entité Deal, DataService, pages, widgets
-    ├── categories/          # Filtrage par catégorie
-    ├── comments/            # Modèle commentaire
-    └── profile/             # Page profil
+    ├── auth/                # domain (repository, usecases) / data / presentation
+    ├── deals/               # domain (DealRepository, 12 usecases) / data (FirestoreService) / presentation
+    ├── categories/          # domain (CategoryRepository) / data / presentation
+    ├── comments/            # domain (CommentRepository) / data / presentation
+    ├── reports/             # domain (ReportRepository) / data / presentation
+    └── profile/             # domain (ProfileRepository) / data / presentation
 ```
 
-Architecture **Clean Architecture** : séparation stricte domain / data / presentation.
+Architecture **Clean Architecture** : séparation stricte domain / data / presentation sur les 6 features. La présentation ne dépend que d'interfaces de repository (domain) exposées via des usecases, jamais directement de `FirestoreService`/`FirebaseAuth` — `FirestoreService` (`features/deals/data/datasources/remote/`) est la seule classe à parler à Firestore, utilisée en interne par les repository impl de chaque feature (`*RepositoryImpl`), jamais depuis `presentation/`.
 
 ---
 
@@ -320,12 +336,12 @@ Architecture **Clean Architecture** : séparation stricte domain / data / presen
 | Commentaires | MUST | Je veux commenter un deal pour partager mon avis | ✅ | `comments/`, tests DEAL-010 |
 | Recherche + filtres | MUST | Je veux filtrer les deals par catégorie, prix et marchand | ✅ | Recherche texte (titre/marchand) + filtre catégorie + filtre par tranche de prix (min/max, chip actif avec suppression) dans `home_page.dart`, vérifié sur émulateur |
 | Profils utilisateurs | MUST | Je veux consulter mon profil et mes deals postés | ✅ | `profile/presentation/pages/profile_page.dart` |
-| Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ⚠️ Code complet, déploiement en attente | Transport FCM validé en conditions réelles (permission + token + réception, testé sur émulateur Android). Ciblage par catégorie implémenté : écran "Notifications par catégorie" (`profile_page.dart`) → `FirestoreService.toggleFollowedCategory` (persistance `users/{uid}.followedCategoryIds`) → `NotificationService.subscribeToCategory` (topic `category_<id>`), testé de bout en bout sur émulateur (toggle → écriture Firestore → abonnement FCM confirmés en log). Cloud Function `notifyNewDealInCategory` (`functions/index.js`) publie sur le topic à la création d'un deal — validée via l'émulateur Firebase (Firestore + Functions), **reste à déployer en production** (`firebase deploy --only functions`) |
-| Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ✅ | Bouton "Signaler" sur la fiche deal (masqué sur son propre deal), 4 motifs, testé de bout en bout sur émulateur — `report_dialog.dart`, `FirestoreService.createReport` |
+| Notifications push (FCM) | MUST | Je veux être alerté des deals dans mes catégories | ⚠️ Code complet, déploiement en attente | Transport FCM validé en conditions réelles (permission + token + réception, testé sur émulateur Android). Ciblage par catégorie implémenté : écran "Notifications par catégorie" (`profile_page.dart`) → `ToggleFollowedCategoryUseCase`/`ProfileRepository` (persistance `users/{uid}.followedCategoryIds`) → `NotificationService.subscribeToCategory` (topic `category_<id>`), testé de bout en bout sur émulateur (toggle → écriture Firestore → abonnement FCM confirmés en log). Cloud Function `notifyNewDealInCategory` (`functions/index.js`) publie sur le topic à la création d'un deal — validée via l'émulateur Firebase (Firestore + Functions), **reste à déployer en production** (`firebase deploy --only functions`) |
+| Système de signalement | SHOULD | Je veux signaler un deal frauduleux ou expiré | ✅ | Bouton "Signaler" sur la fiche deal (masqué sur son propre deal), 4 motifs, testé de bout en bout sur émulateur — `report_dialog.dart`, `CreateReportUseCase`/`ReportRepository` |
 | Interface modération | SHOULD | Je veux valider, supprimer ou bannir depuis l'app | ✅ | Écran `ModerationPage` (liste des signalements, "Ignorer"/"Supprimer"), accessible depuis Profil pour les rôles `moderator`/`admin` uniquement (`getUserRoleStream`) — attribution du rôle toujours manuelle (Firebase Console), par choix de sécurité |
 | Détection automatique spam | SHOULD | Je veux que les faux deals soient filtrés automatiquement | ✅ | `SpamDetector` (mots-clés bannis, majuscules excessives, caractères répétés) — un deal suspect est publié puis auto-signalé dans la file de modération (pas de blocage, pour éviter qu'un faux positif ne pénalise un auteur légitime), 5 tests (SEC-006 à SEC-010), vérifié de bout en bout sur émulateur |
 | Maquettes UI/UX | COULD | Je veux une interface intuitive et agréable | ✅ | Thème Material 3 (`app_theme.dart`), sémantique WCAG 2.1 AA |
-| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 50 tests unitaires (recette initiale visait un socle plus restreint) |
+| Tests unitaires + recette | COULD | Je veux un harnais de tests pour prévenir les régressions | ✅ Dépassé | 98 tests unitaires (recette initiale visait un socle plus restreint) |
 | Recommandation personnalisée | COULD | Je veux des suggestions basées sur mes catégories favorites | ❌ Non implémenté | — |
 | Alertes prix | COULD | Je veux être notifié quand un produit suivi baisse de prix | ❌ Non implémenté | — |
 

@@ -5,6 +5,20 @@ Format : [version] — date — description
 
 ---
 
+## [1.3.0] — 2026-07-24
+
+### Modifié
+- Mise en conformité Clean Architecture sur l'ensemble des features (`categories`, `comments`, `reports`, `deals`, `profile`, `auth`) : ajout d'un repository (domain) + un usecase par opération pour chacune, en remplacement des appels directs de la présentation à `FirestoreService`/`FirebaseAuth`. `comments` et `reports` n'avaient jusqu'ici qu'un modèle data brut, sans couche domain.
+- `AddDealBloc` appelait `FirestoreService.addDeal` directement et dupliquait indépendamment la logique de `CreateDealUseCase` (jusque-là non utilisé nulle part) ; le bloc utilise désormais réellement le usecase — une seule source de vérité pour la règle de création d'un deal
+- `AuthProvider` appelait `FirebaseAuth.instance` directement pour signIn/signUp/signOut/sendPasswordResetEmail/signInAnonymously au lieu de passer par `AuthRepository` (déjà existant, mais sous-utilisé) ; délègue maintenant entièrement aux usecases du domain, avec un message d'erreur désormais sourcé depuis `AuthRepositoryImpl` (seule source de vérité, au lieu d'une table dupliquée dans `AuthProvider`)
+- `DealRepository.addDeal` retourne `Either<String, Deal>` plutôt qu'un `DocumentReference` Firestore — le domain ne dépend plus d'un type de la couche data
+- 13 tests de repository ajoutés (98 tests au total, contre 85)
+
+### Corrigé
+- `CategoryRepositoryImpl` réutilise le modèle statique et le mapper `features/categories/data/` qui existaient déjà mais n'étaient utilisés nulle part (la liste des catégories était dupliquée en dur dans `FirestoreService`)
+
+---
+
 ## [1.2.0] — 2026-07-24
 
 ### Ajouté
