@@ -65,3 +65,6 @@ lcov.info
 
 # Documents locaux (dossiers RNCP)
 docs/
+
+# Claude Code project instructions (local only)
+claude.md
