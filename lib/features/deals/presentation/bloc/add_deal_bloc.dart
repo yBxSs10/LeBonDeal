@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
-import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
 import 'package:lebondeal/features/deals/domain/services/spam_detector.dart';
@@ -32,7 +32,7 @@ class AddDealBloc extends ChangeNotifier {
   List<Category> get categories => _categories;
 
   AddDealBloc() {
-    _categories = getIt<FirestoreService>().getAllCategories();
+    _categories = GetAllCategoriesUseCase(getIt<CategoryRepository>())();
     if (_categories.isNotEmpty) _selectedCategoryId = _categories.first.id;
   }
 

@@ -58,7 +58,7 @@ En parallèle : déploiement du backend
 |---|---|---|
 | Formatage | `dart format` | Bloquant si écart |
 | Analyse statique | `flutter analyze` | Bloquant si warning fatal |
-| Tests unitaires | `flutter test` | 20/20 obligatoires |
+| Tests unitaires | `flutter test` | 85/85 obligatoires |
 | Couverture de code | lcov | Rapport généré à chaque CI |
 | Crashs production | Firebase Crashlytics | Alerte automatique |
 | Performance réseau | Firebase Performance | Suivi des temps de réponse |
@@ -133,7 +133,7 @@ flutter run -d chrome
 
 ## 🧪 Tests unitaires
 
-Le projet contient **55 tests unitaires** couvrant l'authentification, les deals, la sécurité et la couche présentation.
+Le projet contient **85 tests** (55 unitaires domain/data + 30 widget presentation) couvrant l'authentification, les deals, la sécurité et la couche présentation.
 
 ```bash
 # Lancer tous les tests
@@ -188,7 +188,7 @@ test/
 
 ### Protocole de branches
 
-Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 55 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
+Le projet est développé en solo : le workflow réel est un **push direct sur `main`** à chaque incrément, sans branches intermédiaires. C'est le pipeline CI (formatage, lint, 85 tests, build) qui joue le rôle de garde-fou avant chaque évolution, à défaut d'une revue de Pull Request par un pair.
 
 ```
 Développement local
@@ -218,7 +218,7 @@ Le pipeline GitHub Actions se déclenche automatiquement :
 3. Install dependencies   — flutter pub get
 4. Check formatting       — dart format (bloquant si écart)
 5. Analyze code           — flutter analyze (lint statique)
-6. Run unit tests         — 20 tests unitaires (bloquant si échec)
+6. Run unit tests         — 85 tests (bloquant si échec)
 7. Run tests with coverage— génération rapport lcov
 8. Upload coverage        — artifact 30 jours
 9. Verify monitoring deps — vérification Crashlytics + Performance
@@ -237,9 +237,7 @@ android/app/google-services.json
 lib/firebase_options.dart
 ```
 
-> Ces fichiers **sont bien versionnés** dans ce dépôt (contrairement à ce qu'indiquait une version précédente de ce README) : les clés qu'ils contiennent sont des identifiants client publics, pas des secrets — la protection réelle vient de `firestore.rules`, pas de leur confidentialité. `ios/Runner/GoogleService-Info.plist` n'existe pas dans ce projet (build iOS non configuré, développement fait sur Android via émulateur).
-
-> Ces fichiers contiennent les clés API Firebase et ne sont pas inclus dans le dépôt.
+> Ces fichiers **sont bien versionnés** dans ce dépôt : les clés qu'ils contiennent sont des identifiants client publics, pas des secrets — la protection réelle vient de `firestore.rules`, pas de leur confidentialité. `ios/Runner/GoogleService-Info.plist` n'existe pas dans ce projet (build iOS non configuré, développement fait sur Android via émulateur).
 
 ### Firestore Security Rules
 

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lebondeal/core/di/injection.dart';
-import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = getIt<FirestoreService>().getAllCategories();
+    final categories = GetAllCategoriesUseCase(getIt<CategoryRepository>())();
 
     return Scaffold(
       body: SafeArea(

@@ -395,16 +395,5 @@ void main() {
       // ASSERT
       expect(deals.length, 2);
     });
-
-    // -------------------------------------------------------
-    // DEAL-018 : getAllCategories retourne 8 catégories
-    // -------------------------------------------------------
-    test('DEAL-018 : getAllCategories retourne les 8 catégories statiques', () {
-      final categories = service.getAllCategories();
-      expect(categories.length, 8);
-      expect(categories.map((c) => c.id), contains('high-tech'));
-      expect(categories.map((c) => c.id), contains('mode'));
-      expect(categories.map((c) => c.id), contains('maison'));
-    });
   });
 }

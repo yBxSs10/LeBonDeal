@@ -13,6 +13,8 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/categories/data/repositories/category_repository_impl.dart';
+import 'package:lebondeal/features/categories/domain/repositories/category_repository.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/deals/presentation/bloc/add_deal_bloc.dart';
 
@@ -25,6 +27,11 @@ void main() {
       if (!getIt.isRegistered<FirestoreService>()) {
         getIt.registerLazySingleton<FirestoreService>(
           () => FirestoreService(db: FakeFirebaseFirestore()),
+        );
+      }
+      if (!getIt.isRegistered<CategoryRepository>()) {
+        getIt.registerLazySingleton<CategoryRepository>(
+          () => CategoryRepositoryImpl(),
         );
       }
       bloc = AddDealBloc();

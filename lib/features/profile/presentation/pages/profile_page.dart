@@ -4,7 +4,7 @@ import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/services/notification_service.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
-import 'package:lebondeal/features/categories/domain/entities/category.dart';
+import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
 import 'package:lebondeal/features/reports/presentation/pages/moderation_page.dart';
 
@@ -264,7 +264,7 @@ class _CategoryNotificationSettingsState
   @override
   void initState() {
     super.initState();
-    _categories = getIt<FirestoreService>().getAllCategories();
+    _categories = GetAllCategoriesUseCase(getIt<CategoryRepository>())();
   }
 
   Future<void> _onToggle(String categoryId, bool follow) async {

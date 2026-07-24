@@ -79,8 +79,10 @@ jobs:
         run: flutter pub get
 
       # 4. Compiler l'APK (prototype fonctionnel)
+      # --build-name n'est pas fixé ici : il est repris depuis pubspec.yaml,
+      # pour rester aligné avec le CHANGELOG à chaque release.
       - name: Build APK
-        run: flutter build apk --debug --build-name=1.0.0 --build-number=${{ github.run_number }}
+        run: flutter build apk --debug --build-number=${{ github.run_number }}
 
       # 5. Publier l'APK comme artefact téléchargeable
       - name: Upload APK artifact

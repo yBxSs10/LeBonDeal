@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
-import 'package:lebondeal/features/categories/domain/entities/category.dart';
 import 'package:lebondeal/features/comments/data/models/comment.dart';
 import 'package:lebondeal/features/reports/data/models/report.dart';
 
@@ -250,54 +248,6 @@ class FirestoreService {
       }, SetOptions(merge: true));
     }
   }
-
-  // ─── Catégories (statiques — pas besoin de Firestore) ───────────────────────
-
-  List<Category> getAllCategories() => [
-    Category(
-      id: 'high-tech',
-      name: 'High-Tech',
-      icon: Icons.computer,
-      color: Colors.blue,
-    ),
-    Category(
-      id: 'informatique',
-      name: 'Informatique',
-      icon: Icons.laptop,
-      color: Colors.green,
-    ),
-    Category(id: 'mode', name: 'Mode', icon: Icons.style, color: Colors.pink),
-    Category(
-      id: 'maison',
-      name: 'Maison',
-      icon: Icons.home,
-      color: Colors.orange,
-    ),
-    Category(
-      id: 'sports',
-      name: 'Sports',
-      icon: Icons.sports,
-      color: Colors.red,
-    ),
-    Category(
-      id: 'voyages',
-      name: 'Voyages',
-      icon: Icons.flight,
-      color: Colors.purple,
-    ),
-    Category(
-      id: 'restauration',
-      name: 'Restauration',
-      icon: Icons.restaurant,
-      color: Colors.brown,
-    ),
-    Category(
-      id: 'beaute',
-      name: 'Beauté',
-      icon: Icons.spa,
-      color: Colors.pinkAccent,
-    ),
-  ];
 
   // ─── Signalements (reports) ────────────────────────────────────────────────
 
