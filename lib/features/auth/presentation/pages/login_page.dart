@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../widgets/login/login_bottom_cta.dart';
 import '../widgets/login/login_divider.dart';
+import '../widgets/login/login_form.dart';
 import '../widgets/login/login_header.dart';
 import '../widgets/login/login_social_buttons.dart';
 
@@ -41,33 +42,6 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       // L'erreur est déjà gérée dans le AuthProvider
     }
-  }
-
-  Widget _buildLoginButton(AuthProvider authProvider) {
-    return ElevatedButton(
-      onPressed: authProvider.isLoading
-          ? null
-          : () => _handleSubmit(authProvider),
-      child: authProvider.isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : const Text('Se connecter'),
-    );
-  }
-
-  Widget _buildGuestLoginButton(AuthProvider authProvider) {
-    return OutlinedButton(
-      onPressed: authProvider.isLoading
-          ? null
-          : () => _handleGuestLogin(authProvider),
-      child: const Text('Continuer en tant qu\'invité'),
-    );
   }
 
   Future<void> _handleForgotPassword(AuthProvider authProvider) async {
@@ -180,60 +154,15 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Veuillez entrer un email valide';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'Mot de passe',
-                          prefixIcon: Icon(Icons.lock),
-                        ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre mot de passe';
-                          }
-                          if (value.length < 6) {
-                            return 'Le mot de passe doit contenir au moins 6 caractères';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
+                LoginForm(
+                  formKey: _formKey,
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                  isSubmitting: authProvider.isLoading,
+                  onSubmit: () => _handleSubmit(authProvider),
+                  onGuestLogin: () => _handleGuestLogin(authProvider),
+                  onForgotPassword: () => _handleForgotPassword(authProvider),
                 ),
-                const SizedBox(height: 8.0),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => _handleForgotPassword(authProvider),
-                    child: const Text('Mot de passe oublié ?'),
-                  ),
-                ),
-                const SizedBox(height: 8.0),
-                _buildLoginButton(authProvider),
-                const SizedBox(height: 16.0),
-                _buildGuestLoginButton(authProvider),
                 const SizedBox(height: 16.0),
                 const LoginDivider(),
                 const SizedBox(height: 24.0),
