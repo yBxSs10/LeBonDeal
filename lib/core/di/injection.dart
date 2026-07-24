@@ -7,6 +7,7 @@ import '../../features/deals/di/deals_di.dart';
 import '../../features/categories/di/categories_di.dart';
 import '../../features/comments/di/comments_di.dart';
 import '../../features/reports/di/reports_di.dart';
+import '../../features/profile/di/profile_di.dart';
 
 final getIt = GetIt.instance;
 
@@ -33,4 +34,7 @@ void configureDependencies() {
 
   // Configurer les dépendances signalements
   configureReportsDependencies();
+
+  // Configurer les dépendances profil utilisateur
+  configureProfileDependencies();
 }

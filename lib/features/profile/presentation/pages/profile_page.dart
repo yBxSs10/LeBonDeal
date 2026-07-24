@@ -5,7 +5,7 @@ import 'package:lebondeal/core/services/notification_service.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
-import 'package:lebondeal/features/deals/data/datasources/remote/firestore_service.dart';
+import 'package:lebondeal/features/profile/domain/domain.dart';
 import 'package:lebondeal/features/reports/presentation/pages/moderation_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -153,7 +153,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             StreamBuilder<String?>(
-              stream: getIt<FirestoreService>().getUserRoleStream(user.uid),
+              stream: GetUserRoleUseCase(getIt<ProfileRepository>())(user.uid),
               builder: (context, snapshot) {
                 final role = snapshot.data;
                 if (role != 'moderator' && role != 'admin') {
@@ -268,7 +268,7 @@ class _CategoryNotificationSettingsState
   }
 
   Future<void> _onToggle(String categoryId, bool follow) async {
-    await getIt<FirestoreService>().toggleFollowedCategory(
+    await ToggleFollowedCategoryUseCase(getIt<ProfileRepository>())(
       widget.userId,
       categoryId,
       !follow,
@@ -283,7 +283,7 @@ class _CategoryNotificationSettingsState
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Set<String>>(
-      stream: getIt<FirestoreService>().getFollowedCategoryIdsStream(
+      stream: GetFollowedCategoryIdsUseCase(getIt<ProfileRepository>())(
         widget.userId,
       ),
       builder: (context, snapshot) {
