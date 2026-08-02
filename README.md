@@ -18,7 +18,7 @@
  
 | Outil | Version |
 |---|---|
-| Flutter / Dart | 3.x stable (CI : 3.44.2) |
+| Flutter / Dart | 3.38.1 (épinglé en CI et via `.fvmrc` — `fvm install` pour aligner l'environnement local) |
 | Android SDK | API 34 |
 | Firebase CLI | 13.x |
 | Firestore + Cloud Functions | `europe-west1` |
@@ -29,9 +29,13 @@
 flutter pub get              # installer les dépendances
 flutter doctor                # vérifier l'installation
  
-flutter run                   # lancer (device détecté automatiquement, ou -d chrome / iOS simulator)
+flutter run                   # lancer (device Android détecté automatiquement, ou -d chrome)
 flutter build apk --release   # build de production
 ```
+ 
+> **Plateformes** : prototype testé et validé sur **Android** uniquement (émulateur + device physique). **iOS n'est pas finalisé** — `ios/Podfile` a été régénéré mais `ios/Runner/GoogleService-Info.plist` (config Firebase native) manque, et son installation (`pod install`, build Xcode) nécessite une machine macOS, qui n'a pas été utilisée sur ce projet. Ne pas annoncer l'app comme cross-platform sans cette réserve.
+ 
+> **Obtenir un APK sans compiler** : dernière version signée disponible dans l'onglet [Releases](../../releases) du dépôt (voir §CI/CD). Un build local (`flutter build apk --release`) fonctionne mais produit un APK signé avec la clé debug — **la connexion Google n'y fonctionnera pas** (SHA-1 non enregistré dans Firebase), utiliser l'APK de la Release pour tester ce flux.
  
 ---
  
@@ -62,9 +66,11 @@ Pipeline GitHub Actions (`.github/workflows/ci.yml`), déclenché sur push (`mai
  
 ```
 checkout → flutter setup → pub get → format → analyze → test (98, bloquant) → coverage → upload artifact → verify monitoring deps
-      └── job build (si test ✅) : APK debug → artefact GitHub Actions (7 jours)
+      └── job build (si test ✅) : APK debug → artefact GitHub Actions (7 jours, usage CI uniquement)
 ```
- 
+
+**`release.yml`** — déclenché uniquement sur un tag `v*` (`git tag v1.3.0 && git push --tags`) : relance les tests, build l'APK **release** signé avec le keystore dédié (secrets GitHub, jamais commité), et publie une [GitHub Release](../../releases) avec l'APK en asset — contrairement aux artefacts Actions, une Release n'expire jamais. C'est la source à utiliser pour récupérer un APK à tester.
+
 Développement actuellement en solo (push direct sur `main`) ; le pipeline sert de garde-fou avant chaque évolution. Le modèle `develop`/`feature`/`hotfix` est déjà pris en charge par la CI, en anticipation d'une équipe à plusieurs contributeurs.
  
 ---
@@ -75,6 +81,7 @@ Développement actuellement en solo (push direct sur `main`) ; le pipeline sert 
 - Rôles `user`/`moderator`/`admin`, attribution manuelle uniquement (Firebase Console)
 - Anti-spam : limite de fréquence de publication + détection automatique (`SpamDetector`)
 - **WCAG 2.1 AA** : labels `Semantics`, compatible TalkBack / VoiceOver
+- Index composites (`firestore.indexes.json`) vérifiés en sync avec le projet Firebase (`firebase firestore:indexes`) le 2026-08-02 ; après toute modification, redéployer avec `firebase deploy --only firestore:indexes`
 Détail complet (OWASP Mobile Top 10, règles Firestore) : voir dossier de certification §4.
  
 ---

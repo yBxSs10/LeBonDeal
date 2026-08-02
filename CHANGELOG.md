@@ -5,6 +5,22 @@ Format : [version] — date — description
 
 ---
 
+## [1.4.0] — 2026-08-02
+
+### Ajouté
+- `.github/workflows/release.yml` : sur un tag `v*`, build l'APK release signé avec le keystore dédié et publie une GitHub Release (asset permanent, contrairement aux artefacts `ci.yml` purgés après 7 jours)
+- Keystore de release Android dédié (`android/upload-keystore.jks`, jamais commité) + `signingConfigs.release` dans `build.gradle.kts` — retombe sur la signature debug si `android/key.properties` est absent, donc `flutter build apk --release` continue de fonctionner sans configuration
+- `ios/Podfile` régénéré depuis le template officiel du SDK Flutter 3.38.1 (`packages/flutter_tools/templates/cocoapods/Podfile-ios`)
+- `.fvmrc` (Flutter 3.38.1) et `flutter-version` épinglé dans `ci.yml`/`release.yml` (remplace `channel: 'stable'`, non reproductible)
+
+### Corrigé
+- Le SHA-1 enregistré dans Firebase (Google Sign-In) correspondait au keystore **debug** de la machine de développement : un build depuis le source par une autre personne (ou l'ancien build CI, signé debug) échouait sur ce flux. Le nouveau keystore de release résout ce problème pour les APK distribués via GitHub Release ; le SHA-1/SHA-256 du nouveau keystore doivent encore être ajoutés dans Firebase Console (action manuelle, hors accès CLI)
+
+### Documenté
+- README : section statut plateformes honnête (Android validé, iOS non finalisé — `GoogleService-Info.plist` manquant, `pod install`/Xcode nécessitent macOS), pointeur vers GitHub Releases plutôt que l'onglet Actions, vérification des index Firestore (`firebase firestore:indexes`, en sync au 2026-08-02)
+
+---
+
 ## [1.3.0] — 2026-07-24
 
 ### Modifié
