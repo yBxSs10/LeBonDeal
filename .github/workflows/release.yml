@@ -1,0 +1,84 @@
+name: Release — LeBonDeal
+
+# Contrairement à ci.yml (artefacts GitHub Actions, purgés après 7 jours),
+# ce workflow publie une vraie GitHub Release : l'APK reste disponible
+# indéfiniment en asset. Déclenché uniquement sur un tag "v*" (ex: v1.3.0),
+# pour ne créer une release que sur décision explicite (git tag && git push --tags).
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Flutter Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.1'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --reporter=expanded
+
+  release:
+    name: Build & Publish Signed APK
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.1'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Le keystore et ses identifiants ne sont jamais commités (voir
+      # android/.gitignore) — ils sont stockés comme secrets GitHub et
+      # reconstruits ici pour la durée du job uniquement.
+      - name: Decode release keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+
+      - name: Write key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=../upload-keystore.jks
+          EOF
+
+      - name: Derive version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release APK
+        run: flutter build apk --release --build-name=${{ steps.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Remove signing secrets from disk
+        if: always()
+        run: rm -f android/upload-keystore.jks android/key.properties
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LeBonDeal ${{ github.ref_name }}
+          generate_release_notes: true
+          files: build/app/outputs/flutter-apk/app-release.apk
