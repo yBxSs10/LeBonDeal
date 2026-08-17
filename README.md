@@ -33,9 +33,7 @@ flutter run                   # lancer (device Android détecté automatiquement
 flutter build apk --release   # build de production
 ```
  
-> **Plateformes** : prototype testé et validé sur **Android** uniquement (émulateur + device physique). **iOS n'est pas finalisé** — `ios/Podfile` a été régénéré mais `ios/Runner/GoogleService-Info.plist` (config Firebase native) manque, et son installation (`pod install`, build Xcode) nécessite une machine macOS, qui n'a pas été utilisée sur ce projet. Ne pas annoncer l'app comme cross-platform sans cette réserve.
- 
-> **Obtenir un APK sans compiler** : dernière version signée disponible dans l'onglet [Releases](../../releases) du dépôt (voir §CI/CD). Un build local (`flutter build apk --release`) fonctionne mais produit un APK signé avec la clé debug — **la connexion Google n'y fonctionnera pas** (SHA-1 non enregistré dans Firebase), utiliser l'APK de la Release pour tester ce flux.
+> **Plateformes** : prototype testé et validé sur **Android** uniquement (émulateur + device physique). **iOS n'est pas finalisé** 
  
 ---
  
