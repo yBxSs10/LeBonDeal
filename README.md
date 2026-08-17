@@ -70,18 +70,16 @@ checkout → flutter setup → pub get → format → analyze → test (98, bloq
 ```
 
 **`release.yml`** — déclenché uniquement sur un tag `v*` (`git tag v1.3.0 && git push --tags`) : relance les tests, build l'APK **release** signé avec le keystore dédié (secrets GitHub, jamais commité), et publie une [GitHub Release](../../releases) avec l'APK en asset — contrairement aux artefacts Actions, une Release n'expire jamais. C'est la source à utiliser pour récupérer un APK à tester.
-
-Développement actuellement en solo (push direct sur `main`) ; le pipeline sert de garde-fou avant chaque évolution. Le modèle `develop`/`feature`/`hotfix` est déjà pris en charge par la CI, en anticipation d'une équipe à plusieurs contributeurs.
  
 ---
  
 ## 🔐 Sécurité & Accessibilité
  
-- Firestore Security Rules : deny-by-default, `authorId == request.auth.uid` à chaque écriture, comptes anonymes bloqués serveur (pas seulement client) pour vote/commentaire/publication
+- Firestore Security Rules : deny-by-default, comptes anonymes bloqués serveur (pas seulement client) pour vote/commentaire/publication
 - Rôles `user`/`moderator`/`admin`, attribution manuelle uniquement (Firebase Console)
 - Anti-spam : limite de fréquence de publication + détection automatique (`SpamDetector`)
 - **WCAG 2.1 AA** : labels `Semantics`, compatible TalkBack / VoiceOver
-- Index composites (`firestore.indexes.json`) vérifiés en sync avec le projet Firebase (`firebase firestore:indexes`) le 2026-08-02 ; après toute modification, redéployer avec `firebase deploy --only firestore:indexes`
+- Index composites (`firestore.indexes.json`) vérifiés en sync avec le projet Firebase (`firebase firestore:indexes`) le 2026-08-02
 Détail complet (OWASP Mobile Top 10, règles Firestore) : voir dossier de certification §4.
  
 ---
