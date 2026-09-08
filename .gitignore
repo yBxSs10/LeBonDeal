@@ -60,6 +60,9 @@ lcov.info
 .env
 .env.*
 
+# Clé de compte de service (scripts/seed_demo_data.js) — jamais commitée
+scripts/serviceAccountKey.json
+
 # VS Code
 .vscode/
 

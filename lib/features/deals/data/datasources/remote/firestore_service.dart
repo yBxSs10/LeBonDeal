@@ -280,9 +280,18 @@ class FirestoreService {
         .map((s) => s.docs.map(_reportFromDoc).toList());
   }
 
-  Future<void> resolveReport(String reportId) {
+  /// [resolvedBy] (uid du modérateur) et [action] ('dismissed' | 'deleted')
+  /// assurent la traçabilité de l'action de modération.
+  Future<void> resolveReport(
+    String reportId,
+    String resolvedBy, {
+    String action = 'dismissed',
+  }) {
     return _db.collection('reports').doc(reportId).update({
       'status': 'resolved',
+      'resolvedBy': resolvedBy,
+      'resolvedAt': FieldValue.serverTimestamp(),
+      'action': action,
     });
   }
 
@@ -338,6 +347,9 @@ class FirestoreService {
       authorId: d['authorId'] ?? '',
       status: d['status'] ?? 'pending',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      resolvedBy: d['resolvedBy'] as String?,
+      resolvedAt: (d['resolvedAt'] as Timestamp?)?.toDate(),
+      action: d['action'] as String?,
     );
   }
 }

@@ -6,6 +6,9 @@ class ResolveReportUseCase {
 
   ResolveReportUseCase(this.repository);
 
-  Future<Either<String, Unit>> call(String reportId) =>
-      repository.resolveReport(reportId);
+  Future<Either<String, Unit>> call(
+    String reportId,
+    String resolvedBy, {
+    String action = 'dismissed',
+  }) => repository.resolveReport(reportId, resolvedBy, action: action);
 }

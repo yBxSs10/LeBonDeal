@@ -55,7 +55,11 @@ void main() {
           'createdAt': DateTime.now(),
         });
 
-        final result = await repository.resolveReport(doc.id);
+        final result = await repository.resolveReport(
+          doc.id,
+          'uid_moderator',
+          action: 'deleted',
+        );
 
         expect(result.isRight(), true);
         final snap = await fakeFirestore
@@ -63,6 +67,8 @@ void main() {
             .doc(doc.id)
             .get();
         expect(snap.data()?['status'], 'resolved');
+        expect(snap.data()?['resolvedBy'], 'uid_moderator');
+        expect(snap.data()?['action'], 'deleted');
       },
     );
 

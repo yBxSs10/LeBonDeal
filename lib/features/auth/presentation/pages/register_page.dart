@@ -52,24 +52,12 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       result.fold(
-        (error) {
-          String errorMessage = 'Une erreur est survenue';
-
-          if (error.contains('email-already-in-use')) {
-            errorMessage = 'Un compte existe déjà avec cet email';
-          } else if (error.contains('weak-password')) {
-            errorMessage =
-                'Le mot de passe est trop faible (6 caractères minimum)';
-          } else if (error.contains('invalid-email')) {
-            errorMessage = 'Adresse email invalide';
-          } else if (error.contains('operation-not-allowed')) {
-            errorMessage = 'Les inscriptions sont temporairement désactivées';
-          } else if (error.contains('too-many-requests')) {
-            errorMessage = 'Trop de tentatives. Réessayez plus tard.';
-          }
-
-          _showMessage(errorMessage);
-        },
+        // `error` est déjà un message localisé en français, produit par
+        // AuthRepositoryImpl._mapAuthExceptionToMessage (seule source de
+        // vérité) — pas besoin de le re-mapper depuis des codes Firebase
+        // anglais ici (ça ne matchait plus jamais et retombait toujours
+        // sur un message générique).
+        (error) => _showMessage(error),
         (user) {
           if (!mounted) return;
           // RegisterPage a été empilée par-dessus _AuthGate (app.dart), qui

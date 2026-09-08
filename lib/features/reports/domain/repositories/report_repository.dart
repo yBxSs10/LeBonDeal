@@ -12,5 +12,9 @@ abstract class ReportRepository {
 
   Stream<List<ReportEntity>> getReportsStream();
 
-  Future<Either<String, Unit>> resolveReport(String reportId);
+  Future<Either<String, Unit>> resolveReport(
+    String reportId,
+    String resolvedBy, {
+    String action = 'dismissed',
+  });
 }

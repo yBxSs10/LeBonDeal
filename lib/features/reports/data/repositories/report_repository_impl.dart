@@ -39,9 +39,13 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<Either<String, Unit>> resolveReport(String reportId) async {
+  Future<Either<String, Unit>> resolveReport(
+    String reportId,
+    String resolvedBy, {
+    String action = 'dismissed',
+  }) async {
     try {
-      await _firestoreService.resolveReport(reportId);
+      await _firestoreService.resolveReport(reportId, resolvedBy, action: action);
       return const Right(unit);
     } catch (_) {
       return const Left('Erreur lors du traitement du signalement');
@@ -57,5 +61,8 @@ class ReportRepositoryImpl implements ReportRepository {
     authorId: report.authorId,
     status: report.status,
     createdAt: report.createdAt,
+    resolvedBy: report.resolvedBy,
+    resolvedAt: report.resolvedAt,
+    action: report.action,
   );
 }

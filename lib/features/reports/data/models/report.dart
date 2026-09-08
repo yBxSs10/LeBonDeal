@@ -8,6 +8,9 @@ class Report {
     required this.authorId,
     required this.status,
     required this.createdAt,
+    this.resolvedBy,
+    this.resolvedAt,
+    this.action,
   });
 
   final String id;
@@ -18,6 +21,9 @@ class Report {
   final String authorId;
   final String status; // 'pending' | 'resolved'
   final DateTime createdAt;
+  final String? resolvedBy; // uid du modérateur ayant traité le signalement
+  final DateTime? resolvedAt;
+  final String? action; // 'dismissed' | 'deleted'
 
   bool get isPending => status == 'pending';
 }

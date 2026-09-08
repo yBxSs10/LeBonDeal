@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
@@ -16,7 +17,12 @@ class _ModerationPageState extends State<ModerationPage> {
   bool _showResolved = false;
 
   Future<void> _dismiss(ReportEntity report) async {
-    await ResolveReportUseCase(getIt<ReportRepository>())(report.id);
+    final moderatorId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    await ResolveReportUseCase(getIt<ReportRepository>())(
+      report.id,
+      moderatorId,
+      action: 'dismissed',
+    );
     if (mounted) {
       ScaffoldMessenger.of(
         context,
@@ -50,7 +56,12 @@ class _ModerationPageState extends State<ModerationPage> {
     if (report.targetType == 'deal') {
       await DeleteDealUseCase(getIt<DealRepository>())(report.targetId);
     }
-    await ResolveReportUseCase(getIt<ReportRepository>())(report.id);
+    final moderatorId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    await ResolveReportUseCase(getIt<ReportRepository>())(
+      report.id,
+      moderatorId,
+      action: 'deleted',
+    );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,9 +142,31 @@ class _ModerationPageState extends State<ModerationPage> {
                             const SizedBox(height: 4),
                             Text('Motif : ${report.reason}'),
                             const SizedBox(height: 8),
-                            if (!report.isPending)
-                              const Chip(label: Text('Traité'))
-                            else
+                            if (!report.isPending) ...[
+                              Chip(
+                                label: Text(
+                                  report.action == 'deleted'
+                                      ? 'Supprimé'
+                                      : 'Ignoré',
+                                ),
+                              ),
+                              if (report.resolvedBy != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    'Traité par ${report.resolvedBy} le '
+                                    '${report.resolvedAt?.day.toString().padLeft(2, '0')}/'
+                                    '${report.resolvedAt?.month.toString().padLeft(2, '0')}/'
+                                    '${report.resolvedAt?.year} à '
+                                    '${report.resolvedAt?.hour.toString().padLeft(2, '0')}:'
+                                    '${report.resolvedAt?.minute.toString().padLeft(2, '0')}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                            ] else
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [

@@ -1,0 +1,11 @@
+{
+  "name": "lebondeal-scripts",
+  "private": true,
+  "description": "Scripts d'exploitation ponctuels (seed de données de démo) — non liés au déploiement de l'app ou des Cloud Functions.",
+  "scripts": {
+    "seed": "node seed_demo_data.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}
