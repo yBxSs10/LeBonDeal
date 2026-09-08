@@ -45,7 +45,11 @@ class ReportRepositoryImpl implements ReportRepository {
     String action = 'dismissed',
   }) async {
     try {
-      await _firestoreService.resolveReport(reportId, resolvedBy, action: action);
+      await _firestoreService.resolveReport(
+        reportId,
+        resolvedBy,
+        action: action,
+      );
       return const Right(unit);
     } catch (_) {
       return const Left('Erreur lors du traitement du signalement');
