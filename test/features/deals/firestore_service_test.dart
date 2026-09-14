@@ -75,13 +75,28 @@ void main() {
 
     // -------------------------------------------------------
     // DEAL-011 : toggleSavedDeal ajoute puis retire un deal
-    //            des favoris d'un utilisateur
+    //            des favoris d'un utilisateur, et fait varier
+    //            le compteur favorites du deal (batch atomique)
     // -------------------------------------------------------
     test(
       'DEAL-011 : toggleSavedDeal ajoute et retire un dealId des favoris',
       () async {
         const userId = 'uid_bob';
         const dealId = 'deal_xyz';
+
+        await fakeFirestore.collection('deals').doc(dealId).set({
+          'title': 'Deal favorisable',
+          'price': 10.0,
+          'originalPrice': 20.0,
+          'discountPercent': 50,
+          'authorId': 'uid_owner',
+          'categoryId': 'mode',
+          'comments': 0,
+          'favorites': 0,
+          'shares': 0,
+          'isTrending': false,
+          'isPopular': false,
+        });
 
         // ACT — sauvegarde (currentlySaved: false → arrayUnion)
         await service.toggleSavedDeal(userId, dealId, false);
@@ -90,6 +105,11 @@ void main() {
             .doc(userId)
             .get();
         expect(afterSave.data()?['savedDealIds'], contains(dealId));
+        final dealAfterSave = await fakeFirestore
+            .collection('deals')
+            .doc(dealId)
+            .get();
+        expect(dealAfterSave.data()?['favorites'], 1);
 
         // ACT — désauvegarde (currentlySaved: true → arrayRemove)
         await service.toggleSavedDeal(userId, dealId, true);
@@ -98,6 +118,43 @@ void main() {
             .doc(userId)
             .get();
         expect(afterRemove.data()?['savedDealIds'], isNot(contains(dealId)));
+        final dealAfterRemove = await fakeFirestore
+            .collection('deals')
+            .doc(dealId)
+            .get();
+        expect(dealAfterRemove.data()?['favorites'], 0);
+      },
+    );
+
+    // -------------------------------------------------------
+    // DEAL-018 : incrementShareCount incrémente le compteur
+    //            shares du deal
+    // -------------------------------------------------------
+    test(
+      'DEAL-018 : incrementShareCount incrémente le compteur shares',
+      () async {
+        await fakeFirestore.collection('deals').doc('deal_share').set({
+          'title': 'Deal partageable',
+          'price': 10.0,
+          'originalPrice': 20.0,
+          'discountPercent': 50,
+          'authorId': 'uid_owner',
+          'categoryId': 'mode',
+          'comments': 0,
+          'favorites': 0,
+          'shares': 0,
+          'isTrending': false,
+          'isPopular': false,
+        });
+
+        await service.incrementShareCount('deal_share');
+        await service.incrementShareCount('deal_share');
+
+        final snap = await fakeFirestore
+            .collection('deals')
+            .doc('deal_share')
+            .get();
+        expect(snap.data()?['shares'], 2);
       },
     );
 

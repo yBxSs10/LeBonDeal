@@ -37,4 +37,8 @@ abstract class DealRepository {
   );
 
   Stream<List<Deal>> getSavedDealsStream(String userId);
+
+  // ─── Partages ───────────────────────────────────────────────────────────
+
+  Future<Either<String, Unit>> incrementShareCount(String dealId);
 }

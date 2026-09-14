@@ -99,6 +99,23 @@ class _DealDetailPageState extends State<DealDetailPage> {
     if (mounted) setState(() => _isSaved = !_isSaved);
   }
 
+  Future<void> _shareDeal() async {
+    await SharePlus.instance.share(
+      ShareParams(
+        title: widget.deal.title,
+        text:
+            '${widget.deal.title} — ${widget.deal.priceLabel} chez ${widget.deal.storeName}\n\n${widget.deal.description}',
+      ),
+    );
+    // Best-effort : le partage a déjà eu lieu côté OS, on ne bloque/alerte
+    // jamais l'utilisateur si seul le compteur échoue à se mettre à jour.
+    try {
+      await IncrementDealShareCountUseCase(getIt<DealRepository>())(
+        widget.deal.id,
+      );
+    } catch (_) {}
+  }
+
   Future<void> _vote(int value) async {
     if (!_canVote) return;
     await VoteOnDealUseCase(getIt<DealRepository>())(
@@ -151,15 +168,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
           IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Partager ce deal',
-            onPressed: () {
-              SharePlus.instance.share(
-                ShareParams(
-                  title: widget.deal.title,
-                  text:
-                      '${widget.deal.title} — ${widget.deal.priceLabel} chez ${widget.deal.storeName}\n\n${widget.deal.description}',
-                ),
-              );
-            },
+            onPressed: _shareDeal,
           ),
           if (_user != null && _user!.id != widget.deal.authorId)
             IconButton(

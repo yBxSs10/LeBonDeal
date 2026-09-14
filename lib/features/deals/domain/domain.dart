@@ -9,6 +9,7 @@ export 'usecases/get_saved_deal_ids_usecase.dart';
 export 'usecases/get_saved_deals_usecase.dart';
 export 'usecases/get_trending_deals_usecase.dart';
 export 'usecases/get_user_vote_usecase.dart';
+export 'usecases/increment_deal_share_count_usecase.dart';
 export 'usecases/toggle_saved_deal_usecase.dart';
 export 'usecases/vote_on_deal_usecase.dart';
 

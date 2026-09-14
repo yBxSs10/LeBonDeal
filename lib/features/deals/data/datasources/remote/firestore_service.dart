@@ -168,15 +168,32 @@ class FirestoreService {
     bool currentlySaved,
   ) async {
     final userRef = _db.collection('users').doc(userId);
+    final dealRef = _db.collection('deals').doc(dealId);
+    final batch = _db.batch();
+
     if (currentlySaved) {
-      await userRef.set({
+      batch.set(userRef, {
         'savedDealIds': FieldValue.arrayRemove([dealId]),
       }, SetOptions(merge: true));
+      batch.update(dealRef, {'favorites': FieldValue.increment(-1)});
     } else {
-      await userRef.set({
+      batch.set(userRef, {
         'savedDealIds': FieldValue.arrayUnion([dealId]),
       }, SetOptions(merge: true));
+      batch.update(dealRef, {'favorites': FieldValue.increment(1)});
     }
+
+    await batch.commit();
+  }
+
+  /// Incrémente le compteur de partages d'un deal — appelé quand l'utilisateur
+  /// ouvre la feuille de partage native (le partage effectif se produit hors
+  /// de l'app, donc ce compteur mesure les intentions de partage, pas les
+  /// partages effectivement finalisés).
+  Future<void> incrementShareCount(String dealId) {
+    return _db.collection('deals').doc(dealId).update({
+      'shares': FieldValue.increment(1),
+    });
   }
 
   Stream<List<Deal>> getSavedDealsStream(String userId) {

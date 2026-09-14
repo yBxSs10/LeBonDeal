@@ -83,4 +83,16 @@ class DealRepositoryImpl implements DealRepository {
   @override
   Stream<List<Deal>> getSavedDealsStream(String userId) =>
       _firestoreService.getSavedDealsStream(userId);
+
+  @override
+  Future<Either<String, Unit>> incrementShareCount(String dealId) async {
+    try {
+      await _firestoreService.incrementShareCount(dealId);
+      return const Right(unit);
+    } catch (_) {
+      return const Left(
+        'Erreur lors de la mise à jour du compteur de partages',
+      );
+    }
+  }
 }

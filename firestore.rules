@@ -68,6 +68,22 @@ service cloud.firestore {
         && request.time < get(path).data.lastDealPublishedAt + duration.value(30, 's');
     }
 
+    // Autorise tout compte réel (pas seulement l'auteur) à faire varier
+    // uniquement le compteur favorites (+1/-1, sauvegarde/désauvegarde) ou
+    // shares (+1, partage) d'un deal — actions ouvertes à n'importe quel
+    // utilisateur, pas réservées à l'auteur. Aucun autre champ ne peut être
+    // modifié par ce chemin.
+    function isFavoriteOrShareUpdate() {
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      let favoritesDelta = request.resource.data.favorites - resource.data.favorites;
+      let sharesDelta = request.resource.data.shares - resource.data.shares;
+      return isNotAnonymous()
+        && (
+          (changedKeys.hasOnly(['favorites']) && (favoritesDelta == 1 || favoritesDelta == -1))
+          || (changedKeys.hasOnly(['shares']) && sharesDelta == 1)
+        );
+    }
+
     // ----------------------------------------------------------
     // COLLECTION : users
     // Stocke les profils utilisateurs (id, email, displayName, role)
@@ -115,11 +131,14 @@ service cloud.firestore {
       // Mise à jour :
       //   - auteur : peut modifier son deal (sauf authorId), prix toujours valide
       //   - modérateur : peut modifier isTrending, isPopular, badge
+      //   - n'importe quel compte réel : peut faire varier favorites/shares
+      //     (sauvegarde et partage d'un deal, pas réservés à l'auteur)
       allow update: if (isOwner(resource.data.authorId)
           && request.resource.data.authorId == resource.data.authorId
           && request.resource.data.price is number
           && request.resource.data.price > 0)
-        || isModerator();
+        || isModerator()
+        || isFavoriteOrShareUpdate();
 
       // Suppression : auteur ou modérateur
       allow delete: if isOwner(resource.data.authorId) || isModerator();
