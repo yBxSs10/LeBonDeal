@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/di/injection.dart';
-import '../../domain/domain.dart';
+import 'package:provider/provider.dart';
+
+import '../../domain/providers/auth_provider.dart';
 import '../widgets/register/register_bottom_cta.dart';
 import '../widgets/register/register_divider.dart';
 import '../widgets/register/register_form.dart';
@@ -20,10 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isSubmitting = false;
   bool _obscurePassword = true;
-
-  final AuthRepository _authRepository = getIt<AuthRepository>();
 
   @override
   void dispose() {
@@ -34,71 +32,50 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  Future<void> _submitForm() async {
+  Future<void> _submitForm(AuthProvider authProvider) async {
     if (!_formKey.currentState!.validate()) return;
     if (_passwordController.text != _confirmPasswordController.text) {
       _showMessage('Les mots de passe ne correspondent pas');
       return;
     }
 
-    if (!mounted) return;
-    setState(() => _isSubmitting = true);
-
     try {
-      final result = await _authRepository.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        displayName: _nameController.text.trim(),
+      await authProvider.signUp(
+        _emailController.text.trim(),
+        _passwordController.text,
+        _nameController.text.trim(),
       );
-
-      result.fold(
-        // `error` est déjà un message localisé en français, produit par
-        // AuthRepositoryImpl._mapAuthExceptionToMessage (seule source de
-        // vérité) — pas besoin de le re-mapper depuis des codes Firebase
-        // anglais ici (ça ne matchait plus jamais et retombait toujours
-        // sur un message générique).
-        (error) => _showMessage(error),
-        (user) {
-          if (!mounted) return;
-          // RegisterPage a été empilée par-dessus _AuthGate (app.dart), qui
-          // a déjà basculé vers MainNavigation dès la connexion réussie
-          // (authStateChanges) — il suffit de revenir à la racine plutôt que
-          // de pousser HomePage() manuellement (ce qui affichait un écran
-          // sans barre de navigation).
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).popUntil((route) => route.isFirst);
-        },
-      );
-    } catch (e) {
-      _showMessage('Une erreur inattendue est survenue');
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (!mounted) return;
+      // RegisterPage a été empilée par-dessus _AuthGate (app.dart), qui
+      // a déjà basculé vers MainNavigation dès la connexion réussie
+      // (authStateChanges) — il suffit de revenir à la racine plutôt que
+      // de pousser HomePage() manuellement (ce qui affichait un écran
+      // sans barre de navigation).
+      Navigator.of(
+        context,
+        rootNavigator: true,
+      ).popUntil((route) => route.isFirst);
+    } catch (_) {
+      // authProvider.signUp() relance après avoir déjà stocké le message
+      // localisé (AuthRepositoryImpl._mapAuthExceptionToMessage) dans
+      // authProvider.error — pas besoin de le re-mapper ici.
+      _showMessage(authProvider.error ?? 'Une erreur inattendue est survenue');
     }
   }
 
-  Future<void> _handleGoogleSignIn() async {
+  Future<void> _handleGoogleSignIn(AuthProvider authProvider) async {
+    // signInWithGoogle() ne relance jamais d'exception (erreur exposée via
+    // authProvider.error), donc pas de try/catch nécessaire ici.
+    await authProvider.signInWithGoogle();
     if (!mounted) return;
-    setState(() => _isSubmitting = true);
-    try {
-      final result = await _authRepository.signInWithGoogle();
-      result.fold((error) => _showMessage(error), (user) {
-        if (!mounted) return;
-        Navigator.of(
-          context,
-          rootNavigator: true,
-        ).popUntil((route) => route.isFirst);
-      });
-    } catch (e) {
-      _showMessage('Une erreur inattendue est survenue');
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+    if (authProvider.error != null) {
+      _showMessage(authProvider.error!);
+      return;
     }
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).popUntil((route) => route.isFirst);
   }
 
   void _showMessage(String message) {
@@ -110,6 +87,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Créer un compte'),
@@ -138,9 +117,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     emailController: _emailController,
                     passwordController: _passwordController,
                     confirmPasswordController: _confirmPasswordController,
-                    isSubmitting: _isSubmitting,
+                    isSubmitting: authProvider.isLoading,
                     obscurePassword: _obscurePassword,
-                    onSubmit: _submitForm,
+                    onSubmit: () => _submitForm(authProvider),
                     onAlreadyHaveAccount: () => Navigator.of(context).pop(),
                     onTogglePasswordVisibility: _togglePasswordVisibility,
                   ),
@@ -148,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const RegisterDivider(),
                   const SizedBox(height: 16),
                   RegisterSocialButtons(
-                    onGooglePressed: _handleGoogleSignIn,
+                    onGooglePressed: () => _handleGoogleSignIn(authProvider),
                     onFacebookPressed: () =>
                         _showMessage('Connexion avec Facebook à implémenter'),
                   ),
