@@ -9,6 +9,7 @@ class Report {
     required this.status,
     required this.createdAt,
     this.resolvedBy,
+    this.resolvedByName,
     this.resolvedAt,
     this.action,
   });
@@ -22,6 +23,7 @@ class Report {
   final String status; // 'pending' | 'resolved'
   final DateTime createdAt;
   final String? resolvedBy; // uid du modérateur ayant traité le signalement
+  final String? resolvedByName; // snapshot d'affichage, comme targetTitle
   final DateTime? resolvedAt;
   final String? action; // 'dismissed' | 'deleted'
 

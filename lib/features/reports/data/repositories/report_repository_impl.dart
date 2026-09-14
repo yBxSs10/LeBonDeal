@@ -42,12 +42,14 @@ class ReportRepositoryImpl implements ReportRepository {
   Future<Either<String, Unit>> resolveReport(
     String reportId,
     String resolvedBy, {
+    required String resolvedByName,
     String action = 'dismissed',
   }) async {
     try {
       await _firestoreService.resolveReport(
         reportId,
         resolvedBy,
+        resolvedByName: resolvedByName,
         action: action,
       );
       return const Right(unit);
@@ -66,6 +68,7 @@ class ReportRepositoryImpl implements ReportRepository {
     status: report.status,
     createdAt: report.createdAt,
     resolvedBy: report.resolvedBy,
+    resolvedByName: report.resolvedByName,
     resolvedAt: report.resolvedAt,
     action: report.action,
   );

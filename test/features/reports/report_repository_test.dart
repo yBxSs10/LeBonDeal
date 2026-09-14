@@ -58,6 +58,7 @@ void main() {
         final result = await repository.resolveReport(
           doc.id,
           'uid_moderator',
+          resolvedByName: 'Sam Modérateur',
           action: 'deleted',
         );
 
@@ -68,6 +69,7 @@ void main() {
             .get();
         expect(snap.data()?['status'], 'resolved');
         expect(snap.data()?['resolvedBy'], 'uid_moderator');
+        expect(snap.data()?['resolvedByName'], 'Sam Modérateur');
         expect(snap.data()?['action'], 'deleted');
       },
     );

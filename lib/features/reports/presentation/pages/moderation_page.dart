@@ -17,10 +17,12 @@ class _ModerationPageState extends State<ModerationPage> {
   bool _showResolved = false;
 
   Future<void> _dismiss(ReportEntity report) async {
-    final moderatorId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final moderator = FirebaseAuth.instance.currentUser;
     await ResolveReportUseCase(getIt<ReportRepository>())(
       report.id,
-      moderatorId,
+      moderator?.uid ?? '',
+      resolvedByName:
+          moderator?.displayName ?? moderator?.email ?? 'Modérateur',
       action: 'dismissed',
     );
     if (mounted) {
@@ -56,10 +58,12 @@ class _ModerationPageState extends State<ModerationPage> {
     if (report.targetType == 'deal') {
       await DeleteDealUseCase(getIt<DealRepository>())(report.targetId);
     }
-    final moderatorId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final moderator = FirebaseAuth.instance.currentUser;
     await ResolveReportUseCase(getIt<ReportRepository>())(
       report.id,
-      moderatorId,
+      moderator?.uid ?? '',
+      resolvedByName:
+          moderator?.displayName ?? moderator?.email ?? 'Modérateur',
       action: 'deleted',
     );
 
@@ -154,7 +158,7 @@ class _ModerationPageState extends State<ModerationPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
-                                    'Traité par ${report.resolvedBy} le '
+                                    'Traité par ${report.resolvedByName ?? report.resolvedBy} le '
                                     '${report.resolvedAt?.day.toString().padLeft(2, '0')}/'
                                     '${report.resolvedAt?.month.toString().padLeft(2, '0')}/'
                                     '${report.resolvedAt?.year} à '

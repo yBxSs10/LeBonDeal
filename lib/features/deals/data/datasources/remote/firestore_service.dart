@@ -281,15 +281,19 @@ class FirestoreService {
   }
 
   /// [resolvedBy] (uid du modérateur) et [action] ('dismissed' | 'deleted')
-  /// assurent la traçabilité de l'action de modération.
+  /// assurent la traçabilité de l'action de modération. [resolvedByName] est
+  /// un snapshot d'affichage (même principe que targetTitle) — évite une
+  /// lecture users/{uid} supplémentaire pour chaque signalement affiché.
   Future<void> resolveReport(
     String reportId,
     String resolvedBy, {
+    required String resolvedByName,
     String action = 'dismissed',
   }) {
     return _db.collection('reports').doc(reportId).update({
       'status': 'resolved',
       'resolvedBy': resolvedBy,
+      'resolvedByName': resolvedByName,
       'resolvedAt': FieldValue.serverTimestamp(),
       'action': action,
     });
@@ -348,6 +352,7 @@ class FirestoreService {
       status: d['status'] ?? 'pending',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       resolvedBy: d['resolvedBy'] as String?,
+      resolvedByName: d['resolvedByName'] as String?,
       resolvedAt: (d['resolvedAt'] as Timestamp?)?.toDate(),
       action: d['action'] as String?,
     );

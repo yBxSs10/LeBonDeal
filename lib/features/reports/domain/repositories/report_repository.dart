@@ -15,6 +15,7 @@ abstract class ReportRepository {
   Future<Either<String, Unit>> resolveReport(
     String reportId,
     String resolvedBy, {
+    required String resolvedByName,
     String action = 'dismissed',
   });
 }
