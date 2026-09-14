@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 import 'package:lebondeal/features/reports/domain/domain.dart';
 
@@ -17,10 +17,10 @@ class _ModerationPageState extends State<ModerationPage> {
   bool _showResolved = false;
 
   Future<void> _dismiss(ReportEntity report) async {
-    final moderator = FirebaseAuth.instance.currentUser;
+    final moderator = getIt<AuthRepository>().currentUser;
     await ResolveReportUseCase(getIt<ReportRepository>())(
       report.id,
-      moderator?.uid ?? '',
+      moderator?.id ?? '',
       resolvedByName:
           moderator?.displayName ?? moderator?.email ?? 'Modérateur',
       action: 'dismissed',
@@ -58,10 +58,10 @@ class _ModerationPageState extends State<ModerationPage> {
     if (report.targetType == 'deal') {
       await DeleteDealUseCase(getIt<DealRepository>())(report.targetId);
     }
-    final moderator = FirebaseAuth.instance.currentUser;
+    final moderator = getIt<AuthRepository>().currentUser;
     await ResolveReportUseCase(getIt<ReportRepository>())(
       report.id,
-      moderator?.uid ?? '',
+      moderator?.id ?? '',
       resolvedByName:
           moderator?.displayName ?? moderator?.email ?? 'Modérateur',
       action: 'deleted',

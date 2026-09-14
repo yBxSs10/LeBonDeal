@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/reports/domain/domain.dart';
 
 const _reportReasons = [
@@ -16,7 +16,7 @@ Future<void> showReportDealDialog(
   required String dealId,
   required String dealTitle,
 }) async {
-  final user = FirebaseAuth.instance.currentUser;
+  final user = getIt<AuthRepository>().currentUser;
   if (user == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Connectez-vous pour signaler un deal.')),
@@ -35,7 +35,7 @@ Future<void> showReportDealDialog(
     targetType: 'deal',
     targetTitle: dealTitle,
     reason: reason,
-    authorId: user.uid,
+    authorId: user.id,
   );
 
   if (context.mounted) {

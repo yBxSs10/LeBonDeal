@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/services/notification_service.dart';
@@ -6,11 +5,11 @@ import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/profile/domain/domain.dart';
 
 class AuthProvider with ChangeNotifier {
-  User? _user;
+  UserEntity? _user;
   bool _isLoading = false;
   String? _error;
 
-  User? get user => _user;
+  UserEntity? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -19,14 +18,15 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _initAuth() async {
-    _user = FirebaseAuth.instance.currentUser;
+    final authRepository = getIt<AuthRepository>();
+    _user = authRepository.currentUser;
     notifyListeners();
-    if (_user != null) _syncNotificationSubscriptions(_user!.uid);
+    if (_user != null) _syncNotificationSubscriptions(_user!.id);
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    authRepository.authStateChanges.listen((UserEntity? user) {
       _user = user;
       notifyListeners();
-      if (user != null) _syncNotificationSubscriptions(user.uid);
+      if (user != null) _syncNotificationSubscriptions(user.id);
     });
   }
 

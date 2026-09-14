@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 
@@ -38,12 +38,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _listenToSavedDeals() {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
     if (user == null || user.isAnonymous) return;
-    _savedSub = GetSavedDealIdsUseCase(getIt<DealRepository>())(user.uid)
-        .listen((ids) {
-          if (mounted) setState(() => _savedDealIds = ids);
-        });
+    _savedSub = GetSavedDealIdsUseCase(getIt<DealRepository>())(user.id).listen(
+      (ids) {
+        if (mounted) setState(() => _savedDealIds = ids);
+      },
+    );
   }
 
   @override
@@ -152,10 +153,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _toggleSave(String dealId, bool isSaved) async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
     if (user == null || user.isAnonymous) return;
     await ToggleSavedDealUseCase(getIt<DealRepository>())(
-      user.uid,
+      user.id,
       dealId,
       isSaved,
     );
@@ -334,7 +335,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget? _buildFab() {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
     if (user == null || user.isAnonymous) return null;
 
     return Semantics(

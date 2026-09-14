@@ -1,12 +1,13 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:lebondeal/features/auth/domain/repositories/auth_repository.dart';
 import 'package:lebondeal/features/deals/domain/entities/deal.dart';
 import 'package:lebondeal/features/deals/domain/repositories/deal_repository.dart';
 
 class CreateDealUseCase {
   final DealRepository repository;
+  final AuthRepository authRepository;
 
-  CreateDealUseCase(this.repository);
+  CreateDealUseCase(this.repository, this.authRepository);
 
   Future<Either<String, Deal>> call({
     required String title,
@@ -17,7 +18,7 @@ class CreateDealUseCase {
     required String categoryId,
     String? imageUrl,
   }) async {
-    final user = auth.FirebaseAuth.instance.currentUser;
+    final user = authRepository.currentUser;
     if (user == null || user.isAnonymous) {
       return const Left('Utilisateur non connecté');
     }
@@ -40,7 +41,7 @@ class CreateDealUseCase {
       originalPrice: effectiveOriginalPrice,
       discountPercent: discountPercent,
       author: user.displayName ?? 'Utilisateur',
-      authorId: user.uid,
+      authorId: user.id,
       publishedHoursAgo: 0,
       badge: discountPercent > 50 ? 'HOT' : 'NEW',
       comments: 0,

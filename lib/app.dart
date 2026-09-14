@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
+import 'core/di/injection.dart';
 import 'core/navigation/main_navigation.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/domain/domain.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 
 class LebonDealApp extends StatefulWidget {
@@ -45,8 +45,8 @@ class _AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: GetIt.I<FirebaseAuth>().authStateChanges(),
+    return StreamBuilder<UserEntity?>(
+      stream: getIt<AuthRepository>().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

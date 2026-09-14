@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../auth/domain/domain.dart';
 import '../../../comments/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 import '../widgets/deal_image_widget.dart';
@@ -37,7 +37,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
   int _favorites = 0;
   int _shares = 0;
 
-  User? get _user => FirebaseAuth.instance.currentUser;
+  UserEntity? get _user => getIt<AuthRepository>().currentUser;
   bool get _canVote => _user != null && !_user!.isAnonymous;
 
   @override
@@ -73,7 +73,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
     if (_canVote) {
       _userVoteSub =
           GetUserVoteUseCase(getIt<DealRepository>())(
-            _user!.uid,
+            _user!.id,
             widget.deal.id,
           ).listen((v) {
             if (mounted) setState(() => _userVote = v);
@@ -84,7 +84,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
   Future<void> _loadSavedState() async {
     if (!_canVote) return;
     final ids = await GetSavedDealIdsUseCase(getIt<DealRepository>())(
-      _user!.uid,
+      _user!.id,
     ).first;
     if (mounted) setState(() => _isSaved = ids.contains(widget.deal.id));
   }
@@ -92,7 +92,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
   Future<void> _toggleSave() async {
     if (!_canVote) return;
     await ToggleSavedDealUseCase(getIt<DealRepository>())(
-      _user!.uid,
+      _user!.id,
       widget.deal.id,
       _isSaved,
     );
@@ -102,7 +102,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
   Future<void> _vote(int value) async {
     if (!_canVote) return;
     await VoteOnDealUseCase(getIt<DealRepository>())(
-      _user!.uid,
+      _user!.id,
       widget.deal.id,
       value,
     );
@@ -120,8 +120,8 @@ class _DealDetailPageState extends State<DealDetailPage> {
     try {
       final result = await AddCommentUseCase(getIt<CommentRepository>())(
         dealId: widget.deal.id,
-        authorId: _user!.uid,
-        authorName: _user!.displayName ?? _user!.email ?? 'Utilisateur',
+        authorId: _user!.id,
+        authorName: _user!.displayName ?? _user!.email,
         content: content,
       );
       if (mounted) {
@@ -161,7 +161,7 @@ class _DealDetailPageState extends State<DealDetailPage> {
               );
             },
           ),
-          if (_user != null && _user!.uid != widget.deal.authorId)
+          if (_user != null && _user!.id != widget.deal.authorId)
             IconButton(
               icon: const Icon(Icons.flag_outlined),
               tooltip: 'Signaler ce deal',

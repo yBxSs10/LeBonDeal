@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/shared/common_widgets.dart';
+import '../../../auth/domain/domain.dart';
 import '../../domain/domain.dart';
 import '../widgets/deal_card.dart';
 
@@ -11,7 +11,7 @@ class SavedDealsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
 
     if (user == null || user.isAnonymous) {
       return Scaffold(
@@ -26,7 +26,7 @@ class SavedDealsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Deals sauvegardés')),
       body: StreamBuilder<List<Deal>>(
-        stream: GetSavedDealsUseCase(getIt<DealRepository>())(user.uid),
+        stream: GetSavedDealsUseCase(getIt<DealRepository>())(user.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingWidget();
@@ -49,7 +49,7 @@ class SavedDealsPage extends StatelessWidget {
                 deal: deal,
                 isSaved: true,
                 onSave: () => ToggleSavedDealUseCase(getIt<DealRepository>())(
-                  user.uid,
+                  user.id,
                   deal.id,
                   true,
                 ),

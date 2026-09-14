@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 
 import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/domain.dart';
 import 'package:lebondeal/features/deals/domain/services/spam_detector.dart';
@@ -51,7 +51,7 @@ class AddDealBloc extends ChangeNotifier {
   Future<void> submitDeal([VoidCallback? onDealAdded]) async {
     if (!validateForm()) return;
 
-    final user = auth.FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
     if (user == null || user.isAnonymous) {
       throw Exception('Utilisateur non connecté');
     }
@@ -64,18 +64,22 @@ class AddDealBloc extends ChangeNotifier {
       final price = double.parse(_priceController.text.trim());
       final origText = _originalPriceController.text.trim();
 
-      final result = await CreateDealUseCase(getIt<DealRepository>())(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        storeName: _storeNameController.text.trim(),
-        price: price,
-        originalPrice: origText.isNotEmpty ? double.parse(origText) : null,
-        categoryId: _selectedCategoryId!,
-        imageUrl: _imageUrlController.text.trim(),
-      );
+      final result =
+          await CreateDealUseCase(
+            getIt<DealRepository>(),
+            getIt<AuthRepository>(),
+          )(
+            title: _titleController.text.trim(),
+            description: _descriptionController.text.trim(),
+            storeName: _storeNameController.text.trim(),
+            price: price,
+            originalPrice: origText.isNotEmpty ? double.parse(origText) : null,
+            categoryId: _selectedCategoryId!,
+            imageUrl: _imageUrlController.text.trim(),
+          );
       final deal = result.fold((error) => throw Exception(error), (d) => d);
 
-      await _flagIfSuspicious(deal.id, deal, user.uid);
+      await _flagIfSuspicious(deal.id, deal, user.id);
       onDealAdded?.call();
     } finally {
       setSubmitting(false);

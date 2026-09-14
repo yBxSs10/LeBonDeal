@@ -1,5 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 
 class CommentFormWidget extends StatefulWidget {
   const CommentFormWidget({
@@ -73,7 +75,7 @@ class _CommentFormWidgetState extends State<CommentFormWidget> {
   }
 
   bool get _canPostComment {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
     return user != null && !user.isAnonymous;
   }
 

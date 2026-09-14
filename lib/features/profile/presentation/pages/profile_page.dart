@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:lebondeal/core/di/injection.dart';
 import 'package:lebondeal/core/services/notification_service.dart';
 import 'package:lebondeal/core/widgets/shared/common_widgets.dart';
 import 'package:lebondeal/core/widgets/shared/lebondeal_logo.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 import 'package:lebondeal/features/categories/domain/domain.dart';
 import 'package:lebondeal/features/profile/domain/domain.dart';
 import 'package:lebondeal/features/reports/presentation/pages/moderation_page.dart';
@@ -13,7 +13,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = auth.FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
 
     if (user == null) {
       return Scaffold(
@@ -35,8 +35,7 @@ class ProfilePage extends StatelessWidget {
       );
     }
 
-    final displayName =
-        user.displayName ?? user.email?.split('@')[0] ?? 'Utilisateur';
+    final displayName = user.displayName ?? user.email.split('@')[0];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
@@ -54,10 +53,10 @@ class ProfilePage extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.grey[300],
-                      child: user.photoURL != null
+                      child: user.photoUrl != null
                           ? ClipOval(
                               child: Image.network(
-                                user.photoURL!,
+                                user.photoUrl!,
                                 width: 100,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -85,7 +84,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    user.email ?? '',
+                    user.email,
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   if (user.emailVerified) ...[
@@ -117,7 +116,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            _CategoryNotificationSettings(userId: user.uid),
+            _CategoryNotificationSettings(userId: user.id),
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
@@ -153,7 +152,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             StreamBuilder<String?>(
-              stream: GetUserRoleUseCase(getIt<ProfileRepository>())(user.uid),
+              stream: GetUserRoleUseCase(getIt<ProfileRepository>())(user.id),
               builder: (context, snapshot) {
                 final role = snapshot.data;
                 if (role != 'moderator' && role != 'admin') {
@@ -234,7 +233,7 @@ class ProfilePage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await auth.FirebaseAuth.instance.signOut();
+              await getIt<AuthRepository>().signOut();
             },
             child: const Text('Se déconnecter'),
           ),

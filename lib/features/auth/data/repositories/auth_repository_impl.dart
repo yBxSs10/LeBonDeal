@@ -232,6 +232,8 @@ extension on firebase_auth.User {
       email: email ?? '',
       displayName: displayName,
       photoUrl: photoURL,
+      isAnonymous: isAnonymous,
+      emailVerified: emailVerified,
     );
   }
 }

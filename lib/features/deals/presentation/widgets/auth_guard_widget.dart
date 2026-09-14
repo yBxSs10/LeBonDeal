@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
+
+import 'package:lebondeal/core/di/injection.dart';
+import 'package:lebondeal/features/auth/domain/domain.dart';
 
 class AuthGuardWidget extends StatelessWidget {
   const AuthGuardWidget({
@@ -18,7 +20,7 @@ class AuthGuardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = auth.FirebaseAuth.instance.currentUser;
+    final user = getIt<AuthRepository>().currentUser;
 
     if (user == null || user.isAnonymous) {
       return Scaffold(
